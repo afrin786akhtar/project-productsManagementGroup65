@@ -10,9 +10,6 @@ function isEmail(emailAdress) {
     return regex.test(emailAdress)       
 }
 
-
-
-
 const isValidate= function (value) {
     if (typeof value === "undefined" || value === null) return false;
     if (typeof value === "string" && value.trim().length > 0) return true;
@@ -20,23 +17,8 @@ const isValidate= function (value) {
   };
 
 
-const isValidEmail = function (email) {
-    try {
-        if (!isValidate(email)) {
-            return "email should be given and type string! "
-        }
-        if (whitespace(email)) {
-            return "Make sure email should not have any  space ! " 
-        }
-        let EmailId = isEmail(email)
-        if (EmailId == false) {
-            return "Please provide valid email address !" 
-        }
-    }
-    catch (error) {
-        return error.message
-    }
-}
+
+
 const isPassword = function (password) {
     try {
         if (!isValidate(password)) {
@@ -50,13 +32,11 @@ const isPassword = function (password) {
        
     }
     catch (error) {
-        return error.message
+        return "error.message"
     }
 }
 
 
 
 
-
-
-module.exports = {isValidId,isValidEmail,isPassword}
+module.exports = {isEmail,isPassword, isValidate}

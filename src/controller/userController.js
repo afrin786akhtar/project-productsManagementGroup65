@@ -1,7 +1,8 @@
-const userModel = require("../model/userModel")
 const userModel=require('../model/userModel')
 const bcrypt=require('bcrypt')
 const aws=require('aws-sdk')
+const isValid = require ("../Validator/userValidator")
+const jwt = require("jsonwebtoken")
 
 
 aws.config.update({
@@ -56,33 +57,19 @@ const postUser=async(req,res)=>{
 }
 
 //**************************Login User*******************************/
+
 const loginUser=async function(req,res){
     try {
-        let body=req.body
-        
-        let keys= [email, password ]
-        if (!Object.keys(req.body).every((elem) => keys.includes(elem))) {
-            return res
-              .status(400)
-              .send({ status: false, message: "wrong Parameters" });
-          }
-        
-        if (Object.keys(body).length == 0) {
-           return res.status(400) .send({ status: false, message: "Body should not be empty" });
-          }
+        const body = req.body
+        if (Object.keys(body).length == 0) return res.status(400).send({ status: false, msg: "Please fill data in body" })
 
-                
-    let validEmail=  isValid.isValidEmail(email);
-    if(validEmail){
-        return res.status(400).send({status:false,message:validEmail})
-    }
+        const { email, password } = req.body
 
-    let validPassword = isValid.isPassword(password);
-    if (validPassword) {
-      return res.status(400).send({ status: false, message: validPassword })
-    }
+        if (!email) return res.status(400).send({ status: false, msg: "Email is mandatory" })
+        if (!isValid.isEmail(email)) return res.status(400).send({ status: false, msg: "Invalid email, ex.- ( abc123@gmail.com )"})
 
-    let checkUser = await userModel.findOne({ email: email })
+
+    let checkUser = await userModel.findOne({ email:email })
 
     if (!checkUser) {
       return res.status(401).send({ status: false, message: "User not found" })
@@ -95,11 +82,8 @@ const loginUser=async function(req,res){
       userId: checkUser._id.toString(),
     }, 'user-secret-key',{expiresIn:'1hr'})
 
-
-    return res.status(200).send({ status: true, message: "success", data:{token: createToken} })
-
-
-          
+    return res.status(200).send({ status: true, message: "User login successfull", data:{userId:checkUser._id,token: createToken} })
+   
         }
         catch (err){
             return res.status(500).send(err.message)
