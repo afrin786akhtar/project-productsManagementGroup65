@@ -1,4 +1,4 @@
-const userModel=require('../model/userModel')
+const userModel= require('../model/userModel')
 const bcrypt=require('bcrypt')
 const aws=require('aws-sdk')
 const isValid = require ("../Validator/userValidator")
@@ -39,9 +39,10 @@ let uploadFile= async ( file) =>{
 //**************************Create User*******************************/
 
 const postUser=async(req,res)=>{
-
+     let data = req.body
     if(req.files[0]){
         let files= req.files
+
         if(files && files.length>0){
             //upload to s3 and get the uploaded link
             // res.send the link back to frontend/postman
@@ -49,10 +50,15 @@ const postUser=async(req,res)=>{
             res.status(201).send({msg: "file uploaded succesfully", data: uploadedFileURL})
         }
         else{
-            res.status(400).send({ msg: "No file found" })
-        }
-    }  
 
+            res.status(400).send({ msg: "No file found" })
+
+        }
+        const createUser=await userModel.create(data)
+        return res.status(201).send({msg:'User Created Successfully',data:createUser})
+      
+
+    }  
 
 }
 
