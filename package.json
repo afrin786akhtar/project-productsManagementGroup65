@@ -11,11 +11,11 @@
     "type": "git",
     "url": "git+https://github.com/sabihak89/plutonium.git"
   },
-  "author": "",
+  "author": "Group-65",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/sabihak89/plutonium/issues"
-  },
+  },  
   "homepage": "https://github.com/sabihak89/plutonium#readme",
   "dependencies": {
     "express": "^4.18.2",
