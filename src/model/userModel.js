@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
       unique: true,
-      lowercase: true,
+      lowercase: true
     },
 
     profileImage: {
@@ -38,8 +38,7 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      trim: true,
-      minlength: 8,
+      trim: true
     },
 
     address: {

@@ -16,9 +16,6 @@ const isValidate= function (value) {
     return false;
   };
 
-
-
-
 const isPassword = function (password) {
     try {
         if (!isValidate(password)) {
