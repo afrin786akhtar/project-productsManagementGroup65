@@ -1,9 +1,10 @@
 const userModel = require('../model/userModel')
 const bcrypt = require('bcrypt')
 const aws = require('aws-sdk')
-const isValid = require("../Validator/userValidator")
 const jwt = require("jsonwebtoken")
 const mongoose = require("mongoose")
+const {isPassword,isValidate,isEmail} = require("../Validator/userValidator")
+
 
 
 aws.config.update({
@@ -46,8 +47,38 @@ const postUser = async (req, res) => {
         let files = req.files
 
         //.......destructuring......
-        let { fname, lname, email, phone, password, address } = data
+        let { fname,lname,email,phone,password, address } = data
         let securePassword = await bcrypt.hash(password , 10)  //......salt used.....
+
+        if(!fname) return res.status(400).send({status:false, message:"fname is Mandatory field"})
+        // if(!isValidate)  return res.status(400).send({message:"body should not be empty"})
+
+// if(!isValidate(fname))   return res.status(400).send({message:"fname is required"})
+ if(!lname)   return res.status(400).send({message:"lname is required"})
+ if(!email)   return res.status(400).send({message:"email is required"})
+
+// //===========================  Email ================================================================
+
+if(!isEmail(email))   return res.status(400).send({message:"email is not valid"})
+let UniqueEmail=await userModel.find({phone:phone})
+if(!UniqueEmail) return res.status(400).send({message:"Email already Exists"})
+// //===========================  password ================================================================
+
+if(!password)   return res.status(400).send({message:"password is required"})
+//if(!isPassword(password))  return res.status(400).send({message:"password should be between 8 to 15"})
+// //===========================  Phone ================================================================
+if(!phone)   return res.status(400).send({message:"phone is required"})
+let UniquePhone=await userModel.find({phone:phone})
+if(!UniquePhone) return res.status(400).send({message:"Phone already Exists"})
+
+if(!address)   return res.status(400).send({message:"address is required"})
+if(!address.shipping)   return res.status(400).send({message:"Shipping address is required"})
+if(!address.shipping.street)   return res.status(400).send({message:"Shipping street  is required"})
+if(!address.shipping.city)   return res.status(400).send({message:"Shipping city is required"})
+if(!address.shipping.pincode)   return res.status(400).send({message:"Shipping pincode is required"})
+if(!address.billing.street)   return res.status(400).send({message:"Billing Street is required"})
+if(!address.billing.city)   return res.status(400).send({message:"Billing city is required"})
+if(!address.billing.pincode)   return res.status(400).send({message:"Billing pincode is required"})
 
         if ((files && files.length) > 0) {
             //upload to s3 and get the uploaded link
@@ -79,10 +110,10 @@ const loginUser = async function (req, res) {
         const body = req.body
         if (Object.keys(body).length == 0) return res.status(400).send({ status: false, msg: "Please fill data in body" })
 
-        const { email, password } = req.body
+        const { email, password } = body
 
         if (!email) return res.status(400).send({ status: false, msg: "Email is mandatory" })
-        if (!isValid.isEmail(email)) return res.status(400).send({ status: false, msg: "Invalid email, ex.- ( abc123@gmail.com )" })
+        if (!isEmail(email)) return res.status(400).send({ status: false, msg: "Invalid email, ex.- ( abc123@gmail.com )" })
 
 
         let checkUser = await userModel.findOne({ email: email })
@@ -90,9 +121,9 @@ const loginUser = async function (req, res) {
         if (!checkUser) {
             return res.status(401).send({ status: false, message: "User not found" })
         }
-        if (password != checkUser.password) {
-            return res.status(401).send({ status: false, message: "Password is incorrect" })
-        }
+       
+        let checkPassword = await bcrypt.compare(password,checkUser.password)
+        if(!checkPassword)  return res.status(400).send({status:false, message:"Enter correct Password"})
 
         let createToken = jwt.sign({
             userId: checkUser._id.toString(),
