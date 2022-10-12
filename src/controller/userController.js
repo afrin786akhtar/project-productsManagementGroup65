@@ -88,7 +88,7 @@ if(!address.billing.pincode)   return res.status(400).send({message:"Billing pin
         }
 
         else {
-           return res.status(400).send({ msg: "No file found" })
+           return res.status(400).send({ message: "No file found" })
 
         }
         let user = {
