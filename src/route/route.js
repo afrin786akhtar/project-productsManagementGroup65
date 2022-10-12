@@ -10,4 +10,5 @@ router.post('/login', userController.loginUser)
 router.get('/user/:userId/profile', auth.Authentication, userController.getUserProfile)
 
 
+
 module.exports = router
