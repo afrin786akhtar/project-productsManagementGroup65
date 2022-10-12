@@ -43,8 +43,9 @@ const product = async function (req, res){
         .status(400)
         .send({ status: false, message: "input should not be empty" });
     let { title, description, price, currencyId, currencyFormat, isFreeShipping,style, 
-         installments } = data;
+         installments , availableSizes} = data;
 
+         
    if(!title) return res.status(400).send({status:false, message:"Title is mandatory field"}) 
 
    if(!description) return res.status(400).send({status:false, message:"Description is mandatory field"})
@@ -54,7 +55,14 @@ const product = async function (req, res){
      if(!currencyId) return res.status(400).send({status:false, message:"currencyId is mandatory field"}) 
 
      if(!currencyFormat) return res.status(400).send({status:false, message:"currencyFormat is mandatory field"}) 
-     if(availableSizes)
+     
+     const Sizes = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+    
+
+    //  if (!Object.keys(data.availableSizes).every(elem => Sizes.includes(elem))){
+    //     return res.status(400).send({ status: false, message: "wrong Parameters"})
+    //   }
+    if (!Sizes.includes(availableSizes)) return res.status(400).send({status:false, message:"Please select[S|| XS|| M ||X ||L|| XXL|| XL] "})
 
 
      if ((files && files.length) > 0) {
@@ -73,11 +81,12 @@ const product = async function (req, res){
         isFreeShipping: isFreeShipping,
         productImage: productImage,
         style:style, 
-        availableSizes: availableSizes,
-        installments : installments    
+        availableSizes: data.availableSizes,
+          installments : installments    
       };
 
       let createProduct = await productModel.create(product);
+      console.log(createProduct)
       return res
         .status(201)
         .send({
