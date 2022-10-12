@@ -13,7 +13,7 @@ const Authentication = async function (req , res , next){
         
         let finalToken = token.split(" ")
         console.log(finalToken)
-
+        
         let newToken = finalToken.pop()
         console.log(newToken )
 
@@ -45,7 +45,7 @@ const Authorization = async function(req , res , next){
         let presentUser = await userModel.findById(userId)
         if(!presentUser) return res.status(404).send({status: false, message :"User not present in db!!!!"})
 
-        if(user != presentUser) return res.status(400).send({status: false , message : "Unauthorised Access!!"})
+        if(userId != user) return res.status(400).send({status: false , message : "Unauthorised Access!!"})
 
         next()
     } catch (error) {

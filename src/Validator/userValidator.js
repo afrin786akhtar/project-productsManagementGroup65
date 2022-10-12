@@ -16,24 +16,23 @@ const isValidate= function (value) {
     return false;
   };
 
-const isPassword = function (password) {
-    try {
-        if (!isValidate(password)) {
-            return "Passwords should be given and type string! "
-        }
-        if (whitespace(password)) {
-            return "Make sure email should not have any  space ! " 
-        }
-        if(password.length>15 || password.length<8)
-            return "Password length should be between 8 and 15 characters"
-       
-    }
-    catch (error) {
-        return "error.message"
-    }
-}
+  const isValidPassword = (Password) => {
+    return /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/.test(Password)
+  };
+  
+
+const isValidPincode = (num) => {
+    return /^[0-9]{6}$/.test(num);
+  }
+  
+ 
+  const isValidString = (String) => {
+    return /\d/.test(String)
+  }
+  const isValidPhone = (Mobile) => {
+    return /^[6-9]\d{9}$/.test(Mobile)
+  };
 
 
 
-
-module.exports = {isEmail,isPassword, isValidate}
+module.exports = {isEmail,isValidPassword, isValidate,isValidPincode,isValidString,isValidPhone}

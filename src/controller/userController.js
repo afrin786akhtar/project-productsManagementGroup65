@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt')
 const aws = require('aws-sdk')
 const jwt = require("jsonwebtoken")
 const mongoose = require("mongoose")
-const { isPassword, isValidate, isEmail } = require("../Validator/userValidator")
+const { isValidString, isValidate, isEmail,isValidPassword,isValidPhone,isValidPincode } = require("../Validator/userValidator")
 
 
 
@@ -47,38 +47,42 @@ const postUser = async (req, res) => {
         let files = req.files
 
         //.......destructuring......
+
+        if (Object.keys(data).length==0) return res.status(400).send({status:false,message:"input should not be empty"})
         let { fname, lname, email, phone, password, address } = data
         let securePassword = await bcrypt.hash(password, 10)  //......salt used.....
 
         if (!fname) return res.status(400).send({ status: false, message: "fname is Mandatory field" })
-        // if(!isValidate)  return res.status(400).send({message:"body should not be empty"})
+        if(!isValidString(fname))  return res.status(400).send({message:"fname is not valid"})
 
         // if(!isValidate(fname))   return res.status(400).send({message:"fname is required"})
         if (!lname) return res.status(400).send({ message: "lname is required" })
-        if (!email) return res.status(400).send({ message: "email is required" })
+        if(!isValidString(lname))  return res.status(400).send({message:"lname is not valid"})
+
 
         // //===========================  Email ================================================================
-
+        if (!email) return res.status(400).send({ message: "email is required" })
         if (!isEmail(email)) return res.status(400).send({ message: "email is not valid" })
         let UniqueEmail = await userModel.find({ phone: phone })
         if (!UniqueEmail) return res.status(400).send({ message: "Email already Exists" })
         // //===========================  password ================================================================
 
         if (!password) return res.status(400).send({ message: "password is required" })
-        //if(!isPassword(password))  return res.status(400).send({message:"password should be between 8 to 15"})
+        if(!isValidPassword(password))  return res.status(400).send({message:"password should be between 8 to 15"})
         // //===========================  Phone ================================================================
         if (!phone) return res.status(400).send({ message: "phone is required" })
+        if(!isValidPhone(phone))   res.status(400).send({ message: "phone is not valid" })
         let UniquePhone = await userModel.find({ phone: phone })
         if (!UniquePhone) return res.status(400).send({ message: "Phone already Exists" })
 
         if (!address) return res.status(400).send({ message: "address is required" })
-        if (!address.shipping) return res.status(400).send({ message: "Shipping address is required" })
-        if (!address.shipping.street) return res.status(400).send({ message: "Shipping street  is required" })
-        if (!address.shipping.city) return res.status(400).send({ message: "Shipping city is required" })
-        if (!address.shipping.pincode) return res.status(400).send({ message: "Shipping pincode is required" })
-        if (!address.billing.street) return res.status(400).send({ message: "Billing Street is required" })
-        if (!address.billing.city) return res.status(400).send({ message: "Billing city is required" })
-        if (!address.billing.pincode) return res.status(400).send({ message: "Billing pincode is required" })
+        if (!isValidString(address.shipping)) return res.status(400).send({ message: "Shipping address is required" })
+        if (!isValidString(address.shipping.street)) return res.status(400).send({ message: "Shipping street  is required" })
+        if (!isValidString(address.shipping.city)) return res.status(400).send({ message: "Shipping city is required" })
+        if (!isValidPincode(address.shipping.pincode)) return res.status(400).send({ message: "Shipping pincode is not valid" })
+        if (!isValidString(address.billing.street)) return res.status(400).send({ message: "Billing Street is required" })
+        if (!isValidString(address.billing.city)) return res.status(400).send({ message: "Billing city is required" })
+        if (!isValidPincode(address.billing.pincode)) return res.status(400).send({ message: "Billing pincode is valid" })
 
         if ((files && files.length) > 0) {
             //upload to s3 and get the uploaded link
@@ -155,10 +159,66 @@ const getUserProfile = async function (req, res) {
 
 //**************************Update user******************************/
 
+const updateUser=async (req,res)=>{
+let data=req.body
+let files=req.files
+let userId=req.params.userId
+let { fname, lname, email, phone, password, address } = data
+if (Object.keys(data).length==0) return res.status(400).send({status:false,message:"input should not be empty"})
+
+ if(!isValidate(fname)) return res.status(400).send({status:false,message:"fname should be valid"})
+       
+        if(isValidString(lname))  return res.status(400).send({message:"lname is not valid"})
+
+
+        // //===========================  Email ================================================================
+        if (isEmail(email)) return res.status(400).send({ message: "email is not valid" })
+        let UniqueEmail = await userModel.find({ phone: phone })
+        if (!UniqueEmail) return res.status(400).send({ message: "Email already Exists" })
+        // //===========================  password ================================================================
+
+        if(!isValidPassword(password))  return res.status(400).send({message:"password should be between 8 to 15"})
+        // //===========================  Phone ================================================================
+        if(isValidPhone(phone))   res.status(400).send({ message: "phone is not valid" })
+        let UniquePhone = await userModel.find({ phone: phone })
+        if (!UniquePhone) return res.status(400).send({ message: "Phone already Exists" })
+
+        // if (isValidString(address.shipping)) return res.status(400).send({ message: "Shipping address is required" })
+
+        // if (isValidString(address.shipping.street)) return res.status(400).send({ message: "Shipping street  is required" })
+        // if (isValidString(address.shipping.city)) return res.status(400).send({ message: "Shipping city is required" })
+        // if (isValidPincode(address.shipping.pincode)) return res.status(400).send({ message: "Shipping pincode is not valid" })
+        // if (isValidString(address.billing.street)) return res.status(400).send({ message: "Billing Street is required" })
+        // if (isValidString(address.billing.city)) return res.status(400).send({ message: "Billing city is required" })
+        // if (isValidPincode(address.billing.pincode)) return res.status(400).send({ message: "Billing pincode is valid" })
 
 
 
 
+if ((files && files.length) > 0) {
+    //upload to s3 and get the uploaded link
+    // res.send the link back to frontend/postman
+    var uploadedFileURL = await uploadFile(files[0])
+
+}
+else {
+    return res.status(400).send({ msg: "No file found" })
+
+}
+let securePass=await bcrypt.hash(password,10)
+let user = {
+    fname: fname, lname: lname, email:email, profileImage: uploadedFileURL, phone: phone, address: address, password: securePass
+}
+
+let update=await userModel.findByIdAndUpdate({_id:userId},user,{new:true})
+res.status(200).send({status:true,message:"user updated successfully",data:update})
+
+
+
+}
+
+
+module.exports.updateUser=updateUser
 module.exports.postUser = postUser
 module.exports.loginUser = loginUser
 module.exports.getUserProfile = getUserProfile
