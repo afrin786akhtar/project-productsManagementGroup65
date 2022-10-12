@@ -31,7 +31,8 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      default: "₹",
+      enum:[ "₹"],
+      default:"₹"
     },
 
     isFreeShipping: {
@@ -52,10 +53,10 @@ const productSchema = new mongoose.Schema(
 
     availableSizes: [
       {
-        type: String,
+        type:String,
         trim: true,
         enum: ["S", "XS", "M", "X", "L", "XXL", "XL"],
-      },
+      }
     ],
 
     installments: {
@@ -74,4 +75,4 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Product", productSchema);
+module.exports = mongoose.model("Product",productSchema);

@@ -243,6 +243,7 @@ const updateUser = async (req, res) => {
   }
 
   // //===========================  Email ================================================================
+ 
   if (!isEmail(email)) {
     return res.status(400).send({ message: "email is not valid" });
   }
