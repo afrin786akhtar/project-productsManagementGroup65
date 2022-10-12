@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt')
 const aws = require('aws-sdk')
 const jwt = require("jsonwebtoken")
 const mongoose = require("mongoose")
-const {isPassword,isValidate,isEmail} = require("../Validator/userValidator")
+const { isPassword, isValidate, isEmail } = require("../Validator/userValidator")
 
 
 
@@ -47,52 +47,51 @@ const postUser = async (req, res) => {
         let files = req.files
 
         //.......destructuring......
-        let { fname,lname,email,phone,password, address } = data
-        let securePassword = await bcrypt.hash(password , 10)  //......salt used.....
+        let { fname, lname, email, phone, password, address } = data
+        let securePassword = await bcrypt.hash(password, 10)  //......salt used.....
 
-        if(!fname) return res.status(400).send({status:false, message:"fname is Mandatory field"})
+        if (!fname) return res.status(400).send({ status: false, message: "fname is Mandatory field" })
         // if(!isValidate)  return res.status(400).send({message:"body should not be empty"})
 
-// if(!isValidate(fname))   return res.status(400).send({message:"fname is required"})
- if(!lname)   return res.status(400).send({message:"lname is required"})
- if(!email)   return res.status(400).send({message:"email is required"})
+        // if(!isValidate(fname))   return res.status(400).send({message:"fname is required"})
+        if (!lname) return res.status(400).send({ message: "lname is required" })
+        if (!email) return res.status(400).send({ message: "email is required" })
 
-// //===========================  Email ================================================================
+        // //===========================  Email ================================================================
 
-if(!isEmail(email))   return res.status(400).send({message:"email is not valid"})
-let UniqueEmail=await userModel.find({phone:phone})
-if(!UniqueEmail) return res.status(400).send({message:"Email already Exists"})
-// //===========================  password ================================================================
+        if (!isEmail(email)) return res.status(400).send({ message: "email is not valid" })
+        let UniqueEmail = await userModel.find({ phone: phone })
+        if (!UniqueEmail) return res.status(400).send({ message: "Email already Exists" })
+        // //===========================  password ================================================================
 
-if(!password)   return res.status(400).send({message:"password is required"})
-//if(!isPassword(password))  return res.status(400).send({message:"password should be between 8 to 15"})
-// //===========================  Phone ================================================================
-if(!phone)   return res.status(400).send({message:"phone is required"})
-let UniquePhone=await userModel.find({phone:phone})
-if(!UniquePhone) return res.status(400).send({message:"Phone already Exists"})
+        if (!password) return res.status(400).send({ message: "password is required" })
+        //if(!isPassword(password))  return res.status(400).send({message:"password should be between 8 to 15"})
+        // //===========================  Phone ================================================================
+        if (!phone) return res.status(400).send({ message: "phone is required" })
+        let UniquePhone = await userModel.find({ phone: phone })
+        if (!UniquePhone) return res.status(400).send({ message: "Phone already Exists" })
 
-if(!address)   return res.status(400).send({message:"address is required"})
-if(!address.shipping)   return res.status(400).send({message:"Shipping address is required"})
-if(!address.shipping.street)   return res.status(400).send({message:"Shipping street  is required"})
-if(!address.shipping.city)   return res.status(400).send({message:"Shipping city is required"})
-if(!address.shipping.pincode)   return res.status(400).send({message:"Shipping pincode is required"})
-if(!address.billing.street)   return res.status(400).send({message:"Billing Street is required"})
-if(!address.billing.city)   return res.status(400).send({message:"Billing city is required"})
-if(!address.billing.pincode)   return res.status(400).send({message:"Billing pincode is required"})
+        if (!address) return res.status(400).send({ message: "address is required" })
+        if (!address.shipping) return res.status(400).send({ message: "Shipping address is required" })
+        if (!address.shipping.street) return res.status(400).send({ message: "Shipping street  is required" })
+        if (!address.shipping.city) return res.status(400).send({ message: "Shipping city is required" })
+        if (!address.shipping.pincode) return res.status(400).send({ message: "Shipping pincode is required" })
+        if (!address.billing.street) return res.status(400).send({ message: "Billing Street is required" })
+        if (!address.billing.city) return res.status(400).send({ message: "Billing city is required" })
+        if (!address.billing.pincode) return res.status(400).send({ message: "Billing pincode is required" })
 
         if ((files && files.length) > 0) {
             //upload to s3 and get the uploaded link
             // res.send the link back to frontend/postman
             var uploadedFileURL = await uploadFile(files[0])
-           
-        }
 
+        }
         else {
-           return res.status(400).send({ msg: "No file found" })
+            return res.status(400).send({ msg: "No file found" })
 
         }
         let user = {
-            fname: fname, lname: lname, email: email,profileImage:uploadedFileURL,  phone: phone, address: address, password: securePassword 
+            fname: fname, lname: lname, email: email, profileImage: uploadedFileURL, phone: phone, address: address, password: securePassword
         }
         let createUser = await userModel.create(user)
         return res.status(201).send({ status: false, message: "file uploaded succesfully", data: createUser })
@@ -121,13 +120,13 @@ const loginUser = async function (req, res) {
         if (!checkUser) {
             return res.status(401).send({ status: false, message: "User not found" })
         }
-       
-        let checkPassword = await bcrypt.compare(password,checkUser.password)
-        if(!checkPassword)  return res.status(400).send({status:false, message:"Enter correct Password"})
+
+        let checkPassword = await bcrypt.compare(password, checkUser.password)
+        if (!checkPassword) return res.status(400).send({ status: false, message: "Enter correct Password" })
 
         let createToken = jwt.sign({
             userId: checkUser._id.toString(),
-        }, 'user-secret-key', { expiresIn: '1hr' })
+        }, 'user-secret-key', { expiresIn: '5hr' })
 
         return res.status(200).send({ status: true, message: "User login successfull", data: { userId: checkUser._id, token: createToken } })
 
@@ -154,9 +153,13 @@ const getUserProfile = async function (req, res) {
     }
 }
 
+//**************************Update user******************************/
+
+
 
 
 
 module.exports.postUser = postUser
 module.exports.loginUser = loginUser
 module.exports.getUserProfile = getUserProfile
+
