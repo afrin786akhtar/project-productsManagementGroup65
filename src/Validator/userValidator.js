@@ -35,4 +35,4 @@ const isValidPincode = (num) => {
 
 
 
-module.exports = {isEmail,isValidPassword, isValidate,isValidPincode,isValidString,isValidPhone}
+module.exports = {isEmail,isValidPassword,isValidate,isValidPincode,isValidString,isValidPhone}
