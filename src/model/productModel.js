@@ -56,7 +56,7 @@ const productSchema = new mongoose.Schema(
         type:String,
         trim: true,
         enum: ["S", "XS", "M", "X", "L", "XXL", "XL"],
-        uppercase:true
+        //uppercase:true
       }]
     ,
 
