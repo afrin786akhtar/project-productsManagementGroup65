@@ -29,7 +29,7 @@ let uploadFile = async (file) => {
             if (err) {
                 return reject({ "error": err })
             }
-            console.log(data)
+            //console.log(data)
             console.log("file uploaded succesfully")
             return resolve(data.Location)
         })
@@ -46,6 +46,7 @@ const product = async function (req, res){
       return res
         .status(400)
         .send({ status: false, message: "input should not be empty" });
+
     let { title, description, price, currencyId, currencyFormat, isFreeShipping,style, 
          installments , availableSizes} = data;
 
@@ -60,14 +61,7 @@ const product = async function (req, res){
 
      if(!currencyFormat) return res.status(400).send({status:false, message:"currencyFormat is mandatory field"}) 
      
-     const Sizes = ["S", "XS", "M", "X", "L", "XXL", "XL"]
-    
-
-    //  if (!Object.keys(data.availableSizes).every(elem => Sizes.includes(elem))){
-    //     return res.status(400).send({ status: false, message: "wrong Parameters"})
-    //   }
-    if (!Sizes.includes(availableSizes)) return res.status(400).send({status:false, message:"Please select[S|| XS|| M ||X ||L|| XXL|| XL] "})
-
+ 
 
      if ((files && files.length) > 0) {
         //upload to s3 and get the uploaded link
@@ -86,11 +80,23 @@ const product = async function (req, res){
         productImage: productImage,
         style:style, 
         availableSizes: data.availableSizes,
-          installments : installments    
+        installments : installments    
       };
+      if(availableSizes){
+        let sizesArray = availableSizes.split(",").map((x)=>x.trim())
+        for(let i=0;i<sizesArray.length;i++){
+            if(!["S", "XS", "M", "X", "L", "XXL", "XL"].includes(sizesArray[i])){
+                return res.status(400).send({status:false, message:"Available sizes should be among [ 'S', 'XS', 'M', 'X', 'L', 'XXL', 'XL']"
+            })
+            }
+             }
+             if(Array.isArray(sizesArray)){
+                product["availableSizes"] = [...new Set(sizesArray)]
+             }
+
 
       let createProduct = await productModel.create(product);
-      console.log(createProduct)
+      //console.log(createProduct)
       return res
         .status(201)
         .send({
@@ -99,8 +105,8 @@ const product = async function (req, res){
           data: createProduct,
         });
 
-
     }
+}
     catch (err){
         return res.status(500).send(err.message)
     }
