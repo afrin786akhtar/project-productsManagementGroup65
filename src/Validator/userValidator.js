@@ -1,3 +1,5 @@
+const mongoose=require('mongoose')
+
 
 function whitespace(str) {
     return str.trim().indexOf(" ") >= 0
@@ -32,7 +34,9 @@ const isValidPincode = (num) => {
   const isValidPhone = (Mobile) => {
     return /^[6-9]\d{9}$/.test(Mobile)
   };
+  const isValidObjectId = (objectId) => {
+    return mongoose.Types.ObjectId.isValid(objectId);
+  }
 
 
-
-module.exports = {isEmail,isValidPassword,isValidate,isValidPincode,isValidString,isValidPhone}
+module.exports = {isEmail,isValidPassword,isValidate,isValidPincode,isValidString,isValidPhone,isValidObjectId}

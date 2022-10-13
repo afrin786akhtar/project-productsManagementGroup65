@@ -13,6 +13,10 @@ router.put('/user/:userId/profile',auth.Authentication,auth.Authorization,userCo
 
 //************************Product*************//
 router.post('/products', productController.product)
+router.get('/products/:productId',productController.getProductsById)
+router.put('/products/:productId',productController.updateProductsById)
+router.delete('/products/:productId',productController.deleteProductById)
+
 
 
 module.exports = router

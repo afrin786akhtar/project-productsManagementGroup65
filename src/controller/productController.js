@@ -1,5 +1,9 @@
 const productModel = require("../model/productModel")
 const aws = require('aws-sdk')
+const userModel = require("../model/userModel")
+const {isValidate,isValidObjectId} = require("../Validator/userValidator");
+const { validate } = require("../model/userModel");
+
 
 
 aws.config.update({
@@ -103,5 +107,82 @@ const product = async function (req, res){
 }
 
 
+let getProductsById=async(req,res)=>{
+  try{
+    let productId = req.params.productId;
+
+    //checking is product id is valid or not
+    if (!isValidObjectId(productId)){
+      return res.status(400).send({ status: false, message: 'Please provide valid productId' })
+    }
+  
+    //getting the product by it's ID
+    const product = await productModel.findOne({ _id: productId, isDeleted:false})
+    if(!product) return res.status(404).send({ status: false, message:"No product found"})
+
+    return res.status(200).send({ status: true, message: 'Success', data: product})
+  } catch (err) {
+    res.status(500).send({ status: false, error: err.message })
+  }
+}
+
+
+let updateProductsById=async(req,res)=>{
+  try {
+  let productsId=req.params.productsId
+  
+  if(!isValidate.isValidObjectId(productsId)) return res.status(400).send({status:false,message:"please enter a product Id"})
+  
+  const products= await productModel.findByIdAndUpdate({_id:productsId,isDeleted:false})
+  if(!products)  return res.status(400).send({status:false,message:"No products Found"})
+  
+  return res.status(200).send({ status: true, message: 'Success', data: products})
+  
+  } catch (error) {
+    return res.status(500).send({status:false,message:error.message})
+  }
+  
+  }
+
+  // ----------------------------------deleteapi--------------------------------------------
+
+const deleteProductById = async (req, res) => {
+  try {
+    const productId = req.params.productId;
+
+    if (!isValidObjectId(productId)) {
+      return res
+        .status(400)
+        .send({ status: false, message: "invalid productId" });
+    }
+
+    let product = await productModel.findOne({
+      _id: productId,
+      isDeleted: false,
+    });
+    if (product == null) {
+      return res.status(404).send({
+        status: false,
+        message: "Product document does not exist or already deleted",
+      });
+    }
+
+    let deleteProduct = await productModel.findOneAndUpdate(
+      { _id: productId },
+      { $set: { isDeleted: true, deletedAt: new Date().toISOString() } },
+      { new: true, upsert: true }
+    );
+    return res.status(200).send({
+      status: true,
+      message: "Product document deleted successfully",
+    });
+  } catch (err) {
+    res.status(500).send({ status: false, message: err.message });
+  }
+};
+
 
 module.exports.product= product
+module.exports.getProductsById=getProductsById
+module.exports.updateProductsById=updateProductsById
+module.exports.deleteProductById=deleteProductById
