@@ -58,33 +58,7 @@ const product = async function (req, res){
 
      if(!currencyFormat) return res.status(400).send({status:false, message:"currencyFormat is mandatory field"}) 
      
-     
-//      const Sizes = ["S", "XS", "M", "X", "L", "XXL", "XL"]
-// //availableSizes= JSON.parse(availableSizes)
-//      if(!Array.isArray(availableSizes)){
-//        let availableSize  = availableSizes
-//         if(availableSizes.length==0){
-//             return res.status(400).send({status:false, message:"please enter available Sizes"})
-//         }
-//         availableSizes= availableSize
-
-//      }
-//      let checkoutSize= []
-    
-//      for(i=0;i<availableSizes.length;i++){
-//         if(availableSizes ){
-//             checkoutSize.push(availableSizes[i])
-//         }
-//         else   return res.status(400).send({status:false, message:"Size not available"})
-//         }
-
-     
-
-    //  if (!Object.keys(data.availableSizes).every(elem => Sizes.includes(elem))){
-    //     return res.status(400).send({ status: false, message: "wrong Parameters"})
-    //   }
-    // if (!Sizes.includes(availableSizes)) return res.status(400).send({status:false, message:"Please select[S && XS && M && X && L &&  XXL &&  XL] "})
-
+ 
 
      if ((files && files.length) > 0) {
         //upload to s3 and get the uploaded link
