@@ -34,13 +34,13 @@ const postUser = async (req, res) => {
       return res
         .status(400)
         .send({ status: false, message: "fname is Mandatory field" });
-    if (!isValidString(fname))
-      return res.status(400).send({ message: "fname is not valid" });
+    // if (isValidString(fname))
+    //   return res.status(400).send({ message: "fname is not valid" });
 
     // if(!isValidate(fname))   return res.status(400).send({message:"fname is required"})
     if (!lname) return res.status(400).send({ message: "lname is required" });
-    if (!isValidString(lname))
-      return res.status(400).send({ message: "lname is not valid" });
+    // if (isValidString(lname))
+    //   return res.status(400).send({ message: "lname is not valid" });
 
     // //===========================  Email ================================================================
     if (!email) return res.status(400).send({ message: "email is required" });
@@ -65,19 +65,21 @@ const postUser = async (req, res) => {
     if (!UniquePhone)
       return res.status(400).send({ message: "Phone already Exists" });
 
+
+      // let ddress=JSON.parse(address)
     if (!address)
       return res.status(400).send({ message: "address is required" });
-    if (!isValidString(address.shipping))
+    if (!(address.shipping))
       return res.status(400).send({ message: "Shipping address is required" });
-    if (!isValidString(address.shipping.street))
+    if (!(address.shipping.street))
       return res.status(400).send({ message: "Shipping street  is required" });
-    if (!isValidString(address.shipping.city))
+    if (!(address.shipping.city))
       return res.status(400).send({ message: "Shipping city is required" });
     if (!isValidPincode(address.shipping.pincode))
       return res.status(400).send({ message: "Shipping pincode is not valid" });
-    if (!isValidString(address.billing.street))
+    if (!(address.billing.street))
       return res.status(400).send({ message: "Billing Street is required" });
-    if (!isValidString(address.billing.city))
+    if (!(address.billing.city))
       return res.status(400).send({ message: "Billing city is required" });
     if (!isValidPincode(address.billing.pincode))
       return res.status(400).send({ message: "Billing pincode is valid" });
@@ -102,7 +104,7 @@ const postUser = async (req, res) => {
     return res
       .status(201)
       .send({
-        status: false,
+        status: true,
         message: "file uploaded succesfully",
         data: createUser,
       });
@@ -199,7 +201,7 @@ const updateUser = async (req, res) => {
   let files = req.files;
   let userId = req.params.userId;
   let { fname, lname, email, phone, password, address } = data;
-  //let securePass=await bcrypt.hash(password,10)
+  // let securePass=await bcrypt.hash(password,10)
   if (Object.keys(data).length == 0)
     return res
       .status(400)
@@ -217,15 +219,15 @@ const updateUser = async (req, res) => {
 
   // //===========================  Email ================================================================
  
-  if (!isEmail(email)) {
-    return res.status(400).send({ message: "email is not valid" });
-  }
+  // if (!isEmail(email)) {
+  //   return res.status(400).send({ message: "email is not valid" });
+  // }
   let UniqueEmail = await userModel.find({ phone: phone });
   if (!UniqueEmail)
     return res.status(400).send({ message: "Email already Exists" });
   // //===========================  password ================================================================
 
-  if (isValidPassword(password)) {
+  if (!isValidPassword(password)) {
     return res
       .status(400)
       .send({ message: "password should be between 8 to 15" });
@@ -241,7 +243,8 @@ const updateUser = async (req, res) => {
     let { shipping, billing } = address;
     let { street, city, pincode } = shipping && billing;
     //let {street, city, pincode}= billing
-
+ 
+  
     if (data.address.shipping)
       return res.status(400).send({ message: "Shipping address is required" });
 
@@ -260,10 +263,10 @@ const updateUser = async (req, res) => {
   }
 
   if ((files && files.length) > 0) {
-    //upload to s3 and get the uploaded link
-    // res.send the link back to frontend/postman
+  //   //upload to s3 and get the uploaded link
+  //   // res.send the link back to frontend/postman
     var uploadedFileURL = await uploadFile(files[0]);
-  } else {
+   } else{
     return res.status(400).send({ msg: "No file found" });
   }
 
@@ -282,7 +285,7 @@ const updateUser = async (req, res) => {
   });
   res
     .status(200)
-    .send({ status: true, message: "user updated successfully", data: update });
+    .send({ status: true, message: "Update user profile is successful", data: update });
 };
 
 module.exports.updateUser = updateUser;
