@@ -92,8 +92,8 @@ const product = async function (req, res){
       return res
         .status(201)
         .send({
-          status: false,
-          message: "file uploaded succesfully",
+          status: true,
+          message: "Success",
           data: createProduct,
         });
 
@@ -169,7 +169,7 @@ const product = async function (req, res){
 
         const returnAllProduct = await productModel.find(checkDelete).sort(sortArr)
 
-        return res.status(200).send({ status: true, message: "Products available.....", data: returnAllProduct })
+        return res.status(200).send({ status: true, message: "Success", data: returnAllProduct })
 
 
     } catch (error) {
@@ -215,9 +215,8 @@ let updateProductsById=async(req,res)=>{
     //upload to s3 and get the uploaded link
     // res.send the link back to frontend/postman
     var productImage = await uploadFile(files[0]);
-  } else {
-    return res.status(400).send({ msg: "No file found" });
-  }
+  } 
+  
 
   // if(!isValidate(data))  return res.status(400).send({status:false,message:"no data found for update"})
   if(data.isDeleted || data.deletedAt) return res.status(400).send({status:false,message:"Forbidden"})
@@ -228,7 +227,7 @@ let updateProductsById=async(req,res)=>{
 
   if(data.description || typeof data.description == 'string') {
     //checking for product description
-    if(isValidate(data.description)) return res.status(400).send({ status: false, message: "Description should not be an empty string or any numbers in it" });
+    if(!isValidate(data.description)) return res.status(400).send({ status: false, message: "Description should not be an empty string or any numbers in it" });
   };
 
   if(data.price || typeof data.price == 'string') {
