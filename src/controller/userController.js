@@ -20,6 +20,7 @@ const postUser = async (req, res) => {
   try {
     let data = req.body;
     let files = req.files;
+    
 
     //.......destructuring......
 
@@ -34,12 +35,12 @@ const postUser = async (req, res) => {
       return res
         .status(400)
         .send({ status: false, message: "fname is Mandatory field" });
-    if (!isValidString(fname))
+    if (isValidString(fname))
       return res.status(400).send({ message: "fname is not valid" });
 
     // if(!isValidate(fname))   return res.status(400).send({message:"fname is required"})
     if (!lname) return res.status(400).send({ message: "lname is required" });
-    if (!isValidString(lname))
+    if (isValidString(lname))
       return res.status(400).send({ message: "lname is not valid" });
 
     // //===========================  Email ================================================================
@@ -53,13 +54,13 @@ const postUser = async (req, res) => {
 
     if (!password)
       return res.status(400).send({ message: "password is required" });
-    if (!isValidPassword(password))
+   if (!isValidPassword(password))
       return res
         .status(400)
         .send({ message: "password should be between 8 to 15" });
     // //===========================  Phone ================================================================
     if (!phone) return res.status(400).send({ message: "phone is required" });
-    if (!isValidPhone(phone))
+    if (isValidPhone(phone))
       res.status(400).send({ message: "phone is not valid" });
     let UniquePhone = await userModel.find({ phone: phone });
     if (!UniquePhone)

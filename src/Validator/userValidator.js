@@ -27,7 +27,6 @@ const isValidPincode = (num) => {
     return /^[0-9]{6}$/.test(num);
   }
   
- 
   const isValidString = (String) => {
     return /\d/.test(String)
   }
