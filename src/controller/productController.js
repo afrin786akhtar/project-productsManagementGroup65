@@ -1,5 +1,5 @@
 const productModel = require("../model/productModel")
-const aws = require('aws-sdk')
+//const aws = require('aws-sdk')
 const userModel = require("../model/userModel")
 const {isValidate,isValidObjectId,isValidSize,isValidPrice} = require("../Validator/userValidator");
 const { validate, findOne } = require("../model/userModel");
@@ -106,67 +106,76 @@ const product = async function (req, res){
   }
 
 
-//**********Get product by filters********/
+  const getProductByFilters = async function (req, res) {
+    try {
+        let query = req.query
+        let checkDelete = { isDeleted: false } //checking if isDeleted is false or not
+        let sortArr = {}
 
-const getFilteredProducts = async function (req, res) {
-  try {
-      let query = req.query
-      let checkDelete = { isDeleted: false } //checking if isDeleted is false or not
-      let sortArr = {}
-      
-      let { name, size, priceSort, priceGreaterThan, priceLessThan } = query
 
-      let getProducts = productModel.find(checkDelete).sort({ price: 1 })
-      if (isValidate(query)) {
-          if (getProducts.length == 0) {
-              return res.status(404).send({ status: false, message: "No product found" })
-          }
-          return res.status(200).send({ status: false, message: "avilable producta..", data: getProducts })
-      }
-      // name describes the title 
-      if (query.name) {
-          if (!isValidate(name)) {
-              return res.status(400).send({ status: false, message: "Product name/title should be valid!!!" })
-          }
-          // new regex for fetching the title from postman 
-          const regexName = new RegExp(query.name, "g")
-          checkDelete["title"] = { $regex: regexName }
-      }
-      // priceGreaterThan links with the price
-      if (query.priceGreaterThan) {
-          if (!isValidate(priceGreaterThan)) {
-              return res.status(400).send({ status: false, message: "Enter the valid price..." })
-          }
-          checkDelete["price"] = { $gt: Number(priceGreaterThan) }
-      }
-      if ((query.priceLessThan) || (typeof query.priceLessThan == "string")) {
-          if (!isValidate(priceLessThan)) {
-              return res.status(400).send({ status: false, message: "Enter the valid price..." })
-          }
-          checkDelete["price"] = { $lt: Number(priceLessThan) }
-      }
-      if (query.priceSort) {
-          if (!["-1", "1"].includes(priceSort)) {
-              return res.status(400).send({ status: false, message: "For sorting the data in assending order [1] else in decending order please provide [-1]" })
-          }
-          sortArr["price"] = Number(priceSort)
-      }
-      // size here is availableSizes
-      //validating the filter - SIZE
-      if (typeof (query.size) || typeof query.size == 'string') {
-          query.size = query.size.toUpperCase();
-          if (isValidate(query.size)) return res.status(400).send({ status: false, message: "Enter a valid value for size and remove spaces" })
+        let { name, size, priceSort, priceGreaterThan, priceLessThan } = query
 
-          checkDelete.availableSizes = {}
-          checkDelete.availableSizes['$in'] = [query.size]
-      }
-      const returnAllProduct = await productModel.find(checkDelete).sort(sortArr)
-      return res.status(200).send({ status: true, message: "Products available.....", data: returnAllProduct })
-  } catch (error) {
-      return res.status(500).send({ status: false, message: error.message })
-  }
+        let getProducts = productModel.find(checkDelete).sort({ price: 1 })
+        if (isValidate(query)) {
+            if (getProducts.length == 0) {
+                return res.status(404).send({ status: false, message: "No product found" })
+            }
+            return res.status(200).send({ status: false, message: "avilable producta..", data: getProducts })
+        }
+
+        // name describes the title 
+        if (query.name) {
+            if (!isValidate(name)) {
+                return res.status(400).send({ status: false, message: "Product name/title should be valid!!!" })
+            }
+            // new regex for fetching the title from postman 
+            const regexName = new RegExp(query.name, "g")
+            checkDelete["title"] = { $regex: regexName }
+        }
+
+        // priceGreaterThan links with the price
+        if (query.priceGreaterThan) {
+            if (!isValidate(priceGreaterThan)) {
+                return res.status(400).send({ status: false, message: "Enter the valid price..." })
+            }
+            checkDelete["price"] = { $gt: Number(priceGreaterThan) }
+        }
+
+        if ((query.priceLessThan) || (typeof query.priceLessThan == "string")) {
+            if (!isValidate(priceLessThan)) {
+                return res.status(400).send({ status: false, message: "Enter the valid price..." })
+            }
+            checkDelete["price"] = { $lt: Number(priceLessThan) }
+        }
+
+        if (query.priceSort) {
+            if (!["-1", "1"].includes(priceSort)) {
+                return res.status(400).send({ status: false, message: "For sorting the data in assending order [1] else in decending order please provide [-1]" })
+            }
+            sortArr["price"] = Number(priceSort)
+        }
+
+        if (size) {
+            if (typeof (query.size) || typeof query.size == 'string') {
+                query.size = query.size.toUpperCase();
+                if (!isValidate(query.size)) return res.status(400).send({ status: false, message: "Enter a valid value for size and remove spaces" })
+
+                checkDelete.availableSizes = {}
+                checkDelete.availableSizes = { $in: query.size }
+            }
+        }
+
+
+
+        const returnAllProduct = await productModel.find(checkDelete).sort(sortArr)
+
+        return res.status(200).send({ status: true, message: "Products available.....", data: returnAllProduct })
+
+
+    } catch (error) {
+        return res.status(500).send({ status: false, message: error.message })
+    }
 }
-
   
 
 
@@ -333,4 +342,4 @@ module.exports.product= product
 module.exports.getProductsById=getProductsById
 module.exports.updateProductsById=updateProductsById
 module.exports.deleteProductById=deleteProductById
-module.exports.getFilteredProducts=getFilteredProducts
+module.exports.getProductByFilters=getProductByFilters
