@@ -37,6 +37,13 @@ const isValidPincode = (num) => {
   const isValidObjectId = (objectId) => {
     return mongoose.Types.ObjectId.isValid(objectId);
   }
+  const isValidSize = (sizes) => {
+    return ["S", "XS","M","X", "L","XXL", "XL"].includes(sizes);
+  }
 
+  const isValidPrice = (price) => {
+    return /^[1-9]\d{0,7}(?:\.\d{1,2})?$/.test(price)
+  }
+  
 
-module.exports = {isEmail,isValidPassword,isValidate,isValidPincode,isValidString,isValidPhone,isValidObjectId}
+module.exports = {isEmail,isValidPassword,isValidate,isValidPincode,isValidString,isValidPhone,isValidObjectId,isValidSize,isValidPrice}

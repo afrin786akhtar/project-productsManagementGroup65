@@ -1,41 +1,10 @@
 const productModel = require("../model/productModel")
 const aws = require('aws-sdk')
 const userModel = require("../model/userModel")
-const {isValidate,isValidObjectId} = require("../Validator/userValidator");
-const { validate } = require("../model/userModel");
+const {isValidate,isValidObjectId,isValidSize,isValidPrice} = require("../Validator/userValidator");
+const { validate, findOne } = require("../model/userModel");
+const { uploadFile } = require('../utils/awsUpload');
 
-
-
-aws.config.update({
-    accessKeyId: "AKIAY3L35MCRZNIRGT6N",
-    secretAccessKey: "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",
-    region: "ap-south-1"
-})
-
-let uploadFile = async (file) => {
-    return new Promise(function (resolve, reject) {
-        // this function will upload file to aws and return the link
-        let s3 = new aws.S3({ apiVersion: '2006-03-01' }); // we will be using the s3 service of aws
-
-        var uploadParams = {
-            ACL: "public-read",
-            Bucket: "classroom-training-bucket",
-            Key: "abc/" + file.originalname,
-            Body: file.buffer
-        }
-
-
-        s3.upload(uploadParams, function (err, data) {
-            if (err) {
-                return reject({ "error": err })
-            }
-            //console.log(data)
-            console.log("file uploaded succesfully")
-            return resolve(data.Location)
-        })
-
-    })
-}
 
 const product = async function (req, res){
     try{
@@ -52,17 +21,35 @@ const product = async function (req, res){
 
          
    if(!title) return res.status(400).send({status:false, message:"Title is mandatory field"}) 
+   let uniqueTitle=await productModel.findOne({title:title})
+   if(uniqueTitle) return res.status(400).send({status:false, message:"Title should be unique"}) 
 
-   if(!description) return res.status(400).send({status:false, message:"Description is mandatory field"})
-
-     if(!price) return res.status(400).send({status:false, message:"Price is mandatory field"}) 
-
-     if(!currencyId) return res.status(400).send({status:false, message:"currencyId is mandatory field"}) 
-
-     if(!currencyFormat) return res.status(400).send({status:false, message:"currencyFormat is mandatory field"}) 
      
- 
-
+     if(data.description || typeof data.description == 'string') {
+      //checking for product description
+      if(!isValidate(data.description)) return res.status(400).send({ status: false, message: "Description should not be an empty string or any numbers in it" });
+    };
+  
+    if(data.price || typeof data.price == 'string') {
+      //checking for product price
+      if(!isValidPrice(data.price)) return res.status(400).send({ status: false, message: "Price of product should be valid and in numbers" });
+    }
+  
+    if(data.currencyId || typeof data.currencyId == 'string') {
+      //checking for currencyId 
+      if(!isValidate(data.currencyId)) return res.status(400).send({ status: false, message: "Currency Id of product should not be an empty spaces" });
+  
+      if(!(/INR/.test(data.currencyId))) return res.status(400).send({ status: false, message: "Currency Id of product should be in uppercase 'INR' format" });
+    }
+  
+    if(data.currencyFormat || typeof data.currencyFormat == 'string') {
+      //checking for currency formate
+      if(!isValidate(data.currencyFormat)) return res.status(400).send({ status: false, message: "Currency format of product should not be an empty spaces" });
+  
+      if(!(/₹/.test(data.currencyFormat))) return res.status(400).send({ status: false, message: "Currency format/symbol of product should be in '₹' " });
+    }
+  
+    
      if ((files && files.length) > 0) {
         //upload to s3 and get the uploaded link
         // res.send the link back to frontend/postman
@@ -70,6 +57,23 @@ const product = async function (req, res){
       } else {
         return res.status(400).send({ msg: "No file found" });
       }
+    
+      //checking for available Sizes of the products
+    // if(isValidate(data.availableSizes))  return res.status(400).send({ status: false, message: "Enter at least one available size" });
+
+    if (data.availableSizes) {
+      var availableSize = data.availableSizes.toUpperCase().split(",") // Creating an array
+      if (availableSize.length === 0) {
+        return res.status(400).send({ status: false, message: "please provide the product sizes" })
+      }
+      data.availableSizes = availableSize;
+    }
+
+    for(let i = 0;  i < data.availableSizes.length; i++){ 
+      if(!isValidSize(data.availableSizes[i])) {
+        return res.status(400).send({ status: false, message: "Sizes should one of these - 'S', 'XS', 'M', 'X', 'L', 'XXL' and 'XL'" })
+      }
+    }
       let product  = {
         title: title,
         description: description,
@@ -82,18 +86,6 @@ const product = async function (req, res){
         availableSizes: data.availableSizes,
         installments : installments    
       };
-      if(availableSizes){
-        let sizesArray = availableSizes.split(",").map((x)=>x.trim())
-        for(let i=0;i<sizesArray.length;i++){
-            if(!["S", "XS", "M", "X", "L", "XXL", "XL"].includes(sizesArray[i])){
-                return res.status(400).send({status:false, message:"Available sizes should be among [ 'S', 'XS', 'M', 'X', 'L', 'XXL', 'XL']"
-            })
-            }
-             }
-             if(Array.isArray(sizesArray)){
-                product["availableSizes"] = [...new Set(sizesArray)]
-             }
-
 
       let createProduct = await productModel.create(product);
       //console.log(createProduct)
@@ -106,11 +98,76 @@ const product = async function (req, res){
         });
 
     }
-}
+
     catch (err){
         return res.status(500).send(err.message)
     }
+
+  }
+
+
+//**********Get product by filters********/
+
+const getFilteredProducts = async function (req, res) {
+  try {
+      let query = req.query
+      let checkDelete = { isDeleted: false } //checking if isDeleted is false or not
+      let sortArr = {}
+      
+      let { name, size, priceSort, priceGreaterThan, priceLessThan } = query
+
+      let getProducts = productModel.find(checkDelete).sort({ price: 1 })
+      if (isValidate(query)) {
+          if (getProducts.length == 0) {
+              return res.status(404).send({ status: false, message: "No product found" })
+          }
+          return res.status(200).send({ status: false, message: "avilable producta..", data: getProducts })
+      }
+      // name describes the title 
+      if (query.name) {
+          if (!isValidate(name)) {
+              return res.status(400).send({ status: false, message: "Product name/title should be valid!!!" })
+          }
+          // new regex for fetching the title from postman 
+          const regexName = new RegExp(query.name, "g")
+          checkDelete["title"] = { $regex: regexName }
+      }
+      // priceGreaterThan links with the price
+      if (query.priceGreaterThan) {
+          if (!isValidate(priceGreaterThan)) {
+              return res.status(400).send({ status: false, message: "Enter the valid price..." })
+          }
+          checkDelete["price"] = { $gt: Number(priceGreaterThan) }
+      }
+      if ((query.priceLessThan) || (typeof query.priceLessThan == "string")) {
+          if (!isValidate(priceLessThan)) {
+              return res.status(400).send({ status: false, message: "Enter the valid price..." })
+          }
+          checkDelete["price"] = { $lt: Number(priceLessThan) }
+      }
+      if (query.priceSort) {
+          if (!["-1", "1"].includes(priceSort)) {
+              return res.status(400).send({ status: false, message: "For sorting the data in assending order [1] else in decending order please provide [-1]" })
+          }
+          sortArr["price"] = Number(priceSort)
+      }
+      // size here is availableSizes
+      //validating the filter - SIZE
+      if (typeof (query.size) || typeof query.size == 'string') {
+          query.size = query.size.toUpperCase();
+          if (isValidate(query.size)) return res.status(400).send({ status: false, message: "Enter a valid value for size and remove spaces" })
+
+          checkDelete.availableSizes = {}
+          checkDelete.availableSizes['$in'] = [query.size]
+      }
+      const returnAllProduct = await productModel.find(checkDelete).sort(sortArr)
+      return res.status(200).send({ status: true, message: "Products available.....", data: returnAllProduct })
+  } catch (error) {
+      return res.status(500).send({ status: false, message: error.message })
+  }
 }
+
+  
 
 
 let getProductsById=async(req,res)=>{
@@ -135,14 +192,98 @@ let getProductsById=async(req,res)=>{
 
 let updateProductsById=async(req,res)=>{
   try {
-  let productsId=req.params.productsId
+  let productsId=req.params.productId
   
-  if(!isValidate.isValidObjectId(productsId)) return res.status(400).send({status:false,message:"please enter a product Id"})
+  if(!isValidObjectId(productsId)) return res.status(400).send({status:false,message:"please enter a product Id"})
   
-  const products= await productModel.findByIdAndUpdate({_id:productsId,isDeleted:false})
+  const products= await productModel.findOne({_id:productsId,isDeleted:false})
   if(!products)  return res.status(400).send({status:false,message:"No products Found"})
+  if(product.isDeleted==true) return res.status(400).send({status:false,message:"product already deleted"})
+
+  let data=req.body
+  let files=req.files
+  if ((files && files.length) > 0) {
+    //upload to s3 and get the uploaded link
+    // res.send the link back to frontend/postman
+    var productImage = await uploadFile(files[0]);
+  } else {
+    return res.status(400).send({ msg: "No file found" });
+  }
+
+  // if(!isValidate(data))  return res.status(400).send({status:false,message:"no data found for update"})
+  if(data.isDeleted || data.deletedAt) return res.status(400).send({status:false,message:"Forbidden"})
+
+  // if(isValidate(data.title)) return res.status(400).send({status:false,message:"title should not be empty"})
+  let UniqueTitle=await productModel.findOne({title:data.title})
+  if(UniqueTitle)  return res.status(400).send({status:false,message:"Title should be unique"})
+
+  if(data.description || typeof data.description == 'string') {
+    //checking for product description
+    if(isValidate(data.description)) return res.status(400).send({ status: false, message: "Description should not be an empty string or any numbers in it" });
+  };
+
+  if(data.price || typeof data.price == 'string') {
+    //checking for product price
+    if(!isValidPrice(data.price)) return res.status(400).send({ status: false, message: "Price of product should be valid and in numbers" });
+  }
+
+  if(data.currencyId || typeof data.currencyId == 'string') {
+    //checking for currencyId 
+    if(isValidate(data.currencyId)) return res.status(400).send({ status: false, message: "Currency Id of product should not be an empty spaces" });
+
+    if(!(/INR/.test(data.currencyId))) return res.status(400).send({ status: false, message: "Currency Id of product should be in uppercase 'INR' format" });
+  }
+
+  if(data.currencyFormat || typeof data.currencyFormat == 'string') {
+    //checking for currency formate
+    if(isValidate(data.currencyFormat)) return res.status(400).send({ status: false, message: "Currency format of product should not be an empty spaces" });
+
+    if(!(/₹/.test(data.currencyFormat))) return res.status(400).send({ status: false, message: "Currency format/symbol of product should be in '₹' " });
+  }
+
+  //checking freeShipping value is present
+  if(data.isFreeShipping || typeof data.isFreeShipping == 'string') {
+    //converting it to lowercase and removing white spaces
+    data.isFreeShipping = data.isFreeShipping.toLowerCase().trim();;
+    if(data.isFreeShipping == 'true' || data.isFreeShipping == 'false') {
+      //convert from string to boolean
+      data.isFreeShipping = JSON.parse(data.isFreeShipping);
+    }else {
+      return res.status(400).send({ status: false, message: "Enter a valid value for isFreeShipping" })
+    }
+    
+    if(typeof data.isFreeShipping !== 'boolean') return res.status(400).send({ status: false, message: "Free shipping should be in boolean value" })
+  }
+
+  //checking for style in data
+  if(data.style || typeof data.style == 'string'){
+    if(!isValidate(data.style)) return res.status(400).send({ status: false, message: "Style should be valid an does not contain numbers" });
+  }
+
+  if(data.availableSizes || typeof data.availableSizes == 'string') {
+    //checking for available Sizes of the products
+    if(isValidate(data.availableSizes))  return res.status(400).send({ status: false, message: "Enter at least one available size" });
+
+    data.availableSizes =  JSON.parse(data.availableSizes);
+
+    for(let i = 0;  i < data.availableSizes.length; i++){
+      if(!validate.isValidSize(data.availableSizes[i])) {
+        return res.status(400).send({ status: false, message: "Sizes should one of these - 'S', 'XS', 'M', 'X', 'L', 'XXL' and 'XL'" })
+      }
+    }
+  }
   
-  return res.status(200).send({ status: true, message: 'Success', data: products})
+  //checking for installments in data
+  if(data.installments || typeof data.installments == 'string') {
+    if(! isValidate(data.installments)) return res.status(400).send({ status: false, message: "Installments should be in numbers and valid" });
+  }
+
+  let updatedProduct = await productModel.findByIdAndUpdate(
+    {_id: productsId},
+    data,
+    {new: true}
+  )
+  return res.status(200).send({ status: true, message: 'Success', data: updatedProduct})
   
   } catch (error) {
     return res.status(500).send({status:false,message:error.message})
@@ -192,3 +333,4 @@ module.exports.product= product
 module.exports.getProductsById=getProductsById
 module.exports.updateProductsById=updateProductsById
 module.exports.deleteProductById=deleteProductById
+module.exports.getFilteredProducts=getFilteredProducts
