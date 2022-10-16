@@ -120,7 +120,7 @@ const product = async function (req, res){
             if (getProducts.length == 0) {
                 return res.status(404).send({ status: false, message: "No product found" })
             }
-            return res.status(200).send({ status: false, message: "avilable producta..", data: getProducts })
+            return res.status(200).send({ status: false, message: "available products..", data: getProducts })
         }
 
         // name describes the title 
@@ -199,7 +199,7 @@ let getProductsById=async(req,res)=>{
 }
 
 
-let updateProductsById=async(req,res)=>{
+let updateProductsById= async(req,res)=>{
   try {
   let productsId=req.params.productId
   

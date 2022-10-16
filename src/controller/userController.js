@@ -60,8 +60,8 @@ const postUser = async (req, res) => {
         .send({ message: "password should be between 8 to 15" });
     // //===========================  Phone ================================================================
     if (!phone) return res.status(400).send({ message: "phone is required" });
-    if (isValidPhone(phone))
-      res.status(400).send({ message: "phone is not valid" });
+    // if (isValidPhone(phone))
+    //  return res.status(400).send({ message: "phone is not valid" });
     let UniquePhone = await userModel.find({ phone: phone });
     if (!UniquePhone)
       return res.status(400).send({ message: "Phone already Exists" });
@@ -228,11 +228,11 @@ const updateUser = async (req, res) => {
     return res.status(400).send({ message: "Email already Exists" });
   // //===========================  password ================================================================
 
-  if (!isValidPassword(password)) {
-    return res
-      .status(400)
-      .send({ message: "password should be between 8 to 15" });
-  }
+  // if (!isValidPassword(password)) {
+  //   return res
+  //     .status(400)
+  //     .send({ message: "password should be between 8 to 15" });
+  // }
   // //===========================  Phone ================================================================
   if (isValidPhone(phone))
     res.status(400).send({ message: "phone is not valid" });
