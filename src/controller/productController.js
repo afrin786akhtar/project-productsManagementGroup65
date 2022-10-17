@@ -2,7 +2,7 @@ const productModel = require("../model/productModel")
 //const aws = require('aws-sdk')
 const userModel = require("../model/userModel")
 const { isValidate, isValidObjectId, isValidSize, isValidPrice } = require("../Validator/userValidator");
-const { validate, findOne } = require("../model/userModel");
+const { validate } = require("../model/userModel");
 const { uploadFile } = require('../utils/awsUpload');
 
 
@@ -67,7 +67,7 @@ const product = async function (req, res) {
     }
 
     for (let i = 0; i < data.availableSizes.length; i++) {
-      if (!isValidSize(data.availableSizes[i])) {
+      if (isValidSize(data.availableSizes[i])) {
         return res.status(400).send({ status: false, message: "Sizes should one of these - 'S', 'XS', 'M', 'X', 'L', 'XXL' and 'XL'" })
       }
     }

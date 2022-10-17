@@ -14,7 +14,7 @@ const uploadFile = async (files) => {
       ACL: 'public-read',
       Bucket: 'classroom-training-bucket',
       Key: 'Group65/Products-Management/' + files.originalname,
-      Body: files.buffer
+      Body: files.buffer  //buffer read
     };
 
     s3.upload(uploadParams, function(err,data) {
