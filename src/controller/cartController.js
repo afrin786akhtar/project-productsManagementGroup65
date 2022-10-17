@@ -1,15 +1,6 @@
-<<<<<<< HEAD
-const { compare } = require("bcrypt");
-const cartModel = require("../model/cartModel");
-const productModel = require("../model/productModel");
-const ProductModel = require("../model/productModel");
-const { validate } = require("../model/userModel");
-const { isValidate, isValidObjectId, isValidSize, isValidPrice } = require("../Validator/userValidator");
-=======
 const cartModel = require("../model/cartModel")
 const productModel = require("../model/productModel")
 const{isValidate,isValidObjectId}=require("../Validator/userValidator")
->>>>>>> c64b5d200dfc82dd478f1c3d92403c8685e59440
 
 //*******************Adding products to cart*************/
 
