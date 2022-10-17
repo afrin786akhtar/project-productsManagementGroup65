@@ -54,12 +54,12 @@ const postUser = async (req, res) => {
     if (!isValidPhone(phone))
      return res.status(400).send({ status: false, message: "phone is not valid" });
     let UniquePhone = await userModel.find({ phone: phone });
-    if (UniquePhone)
+    if (!UniquePhone)
       return res.status(400).send({ status: false, message: "Phone already Exists" });
 
 
     if (address) {
-      // address = JSON.parse(address)
+      address = JSON.parse(address)
 
       if (!data.address)
         return res.status(400).send({ status: false, message: "address is required" });
@@ -196,7 +196,7 @@ const updateUser = async (req, res) => {
   if (isValidPhone(phone))
     res.status(400).send({status: false, message: "phone is not valid" });
   let UniquePhone = await userModel.findOne({ phone: phone });
-  if (UniquePhone)
+  if (!UniquePhone)
     return res.status(400).send({status: false, message: "Phone already Exists" });
 
   if (address) {
