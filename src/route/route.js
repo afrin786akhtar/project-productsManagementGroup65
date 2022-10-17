@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controller/userController')
 const productController = require('../controller/productController')
+const cartController = require('../controller/cartController')
 const auth = require('../auth/auth')
 
 
@@ -9,15 +10,20 @@ const auth = require('../auth/auth')
 router.post('/register', userController.postUser)
 router.post('/login', userController.loginUser)
 router.get('/user/:userId/profile', auth.Authentication, userController.getUserProfile)
-router.put('/user/:userId/profile',auth.Authentication,auth.Authorization,userController.updateUser)
+router.put('/user/:userId/profile', auth.Authentication, auth.Authorization, userController.updateUser)
 
 //************************Product*************//
 router.post('/products', productController.product)
-router.get('/products',productController.getProductByFilters)
-router.get('/products/:productId',productController.getProductsById)
-router.put('/products/:productId',productController.updateProductsById)
-router.delete('/products/:productId',productController.deleteProductById)
+router.get('/products', productController.getProductByFilters)
+router.get('/products/:productId', productController.getProductsById)
+router.put('/products/:productId', productController.updateProductsById)
+router.delete('/products/:productId', productController.deleteProductById)
 
+//*********************cart******************/
+router.post('/users/:userId/cart', cartController.addToCart)
+router.put('/cartusers/:userId/cart', cartController.removeProduct)
+router.get('/users/:userId/cart', cartController.getCartDetails)
+router.delete('/users/:userId/cart', cartController.deleteCart)
 
 
 module.exports = router

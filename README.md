@@ -281,7 +281,7 @@ Send [form-data](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
   - _**On success**_ - Return HTTP status 201. Also return the cart document. The response should be a JSON object like [this](#successful-response-structure)
   - _**On error**_ - Return a suitable error message with a valid HTTP status code. The response should be a JSON object like [this](#error-response-structure)
 
-### PUT /users/:userId/cart (Remove product / Reduce a product's quantity from the cart)
+### PUT /cartusers/:userId/ (Remove product / Reduce a product's quantity from the cart)
 - Updates a cart by either decrementing the quantity of a product by 1 or deleting a product from the cart.
 - Get cart id in request body.
 - Get productId in request body.
