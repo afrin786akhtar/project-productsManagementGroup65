@@ -20,6 +20,7 @@ const postUser = async (req, res) => {
   try {
     let data = req.body;
     let files = req.files;
+    
 
     //.......destructuring......
 
