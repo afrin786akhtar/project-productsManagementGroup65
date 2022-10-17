@@ -24,7 +24,7 @@ const isValidate= function (value) {
   
 
 const isValidPincode = (num) => {
-    return /^[0-9]{6}$/.test(num);
+    return /^[0-9]{6}$/.test(num);//492001
   }
   
  
@@ -46,4 +46,4 @@ const isValidPincode = (num) => {
   }
   
 
-module.exports = {isEmail,isValidPassword,isValidate,isValidPincode,isValidString,isValidPhone,isValidObjectId,isValidSize,isValidPrice}
+module.exports = {isEmail,isValidPassword,isValidate,isValidString,isValidPincode,isValidPhone,isValidObjectId,isValidSize,isValidPrice}
