@@ -54,9 +54,8 @@ const postUser = async (req, res) => {
     if (!phone) return res.status(400).send({ status: false, message: "phone number is required" });
     if (!isValidPhone(phone))
      return res.status(400).send({ status: false, message: "phone is not valid" });
-    let UniquePhone = await userModel.find({ phone: phone });
-    if (!UniquePhone)
-      return res.status(400).send({ status: false, message: "Phone already Exists" });
+    let UniquePhone = await userModel.findOne({ phone: phone });
+    if (UniquePhone)  return res.status(400).send({ status: false, message: "Phone already Exists" });
 
 
     if (address) {
@@ -197,7 +196,7 @@ const updateUser = async (req, res) => {
   if (isValidPhone(phone))
     res.status(400).send({status: false, message: "phone is not valid" });
   let UniquePhone = await userModel.findOne({ phone: phone });
-  if (!UniquePhone)
+  if (UniquePhone)
     return res.status(400).send({status: false, message: "Phone already Exists" });
 
   if (address) {
@@ -244,9 +243,10 @@ const updateUser = async (req, res) => {
         //upload to s3 and get the uploaded link
         // res.send the link back to frontend/postman
       var uploadedFileURL = await uploadFile(files[0]);
-    } else {
-      return res.status(400).send({status: false, message: "No file found" });
-    }
+    } 
+    // else {
+    //   return res.status(400).send({status: false, message: "No file found" });
+    // }
   }
 
   let user = {
