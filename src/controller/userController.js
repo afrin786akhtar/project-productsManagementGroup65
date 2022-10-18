@@ -1,6 +1,6 @@
 const userModel = require("../model/userModel");
 const bcrypt = require("bcrypt");
-const aws = require("aws-sdk");
+//const aws = require("aws-sdk");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const {
@@ -197,16 +197,17 @@ const updateUser = async (req, res) => {
   if (isValidPhone(phone))
     res.status(400).send({status: false, message: "phone is not valid" });
   let UniquePhone = await userModel.findOne({ phone: phone });
-  if (!UniquePhone)
+  if (UniquePhone)
     return res.status(400).send({status: false, message: "Phone already Exists" });
 
   if (address) {
-    // address = JSON.parse(address)
+    //address = JSON.stringify(address)
 
     let { shipping, billing } = address;
 
     if (address.shipping) {
       let { street, city, pincode } = shipping
+     
 
       if (street) {
         if (!isValidate(address.shipping.street))
@@ -221,6 +222,7 @@ const updateUser = async (req, res) => {
           return res.status(400).send({status: false, message: "Shipping pincode is Invalid" });
       }
     }
+
 
     if (billing) {
       let { street, city, pincode } = billing
@@ -240,13 +242,14 @@ const updateUser = async (req, res) => {
   }
 
   if(files){
-    if (files != undefined && files.length > 0) {
+    if ( files.length > 0) {
         //upload to s3 and get the uploaded link
         // res.send the link back to frontend/postman
       var uploadedFileURL = await uploadFile(files[0]);
-    } else {
-      return res.status(400).send({status: false, message: "No file found" });
-    }
+    } 
+    // else {
+    //   return res.status(400).send({status: false, message: "No file found" });
+    // }
   }
 
   let user = {

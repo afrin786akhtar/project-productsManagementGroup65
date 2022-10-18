@@ -8,7 +8,7 @@ const{isValidate,isValidObjectId}=require("../Validator/userValidator")
 const addToCart = async function (req, res) {
     try {
         const userId = req.params.userId
-        const data = req.body
+        let data = req.body
         //         const query = req.query
         //         const userId = req.params.userId
 
@@ -19,7 +19,7 @@ const addToCart = async function (req, res) {
         // console.log(data)
 
         //destructuring
-        const { productId, cartId } = data
+        let { productId, cartId } = data
         if (!isValidObjectId(productId)) return res.status(400).send({ status: false, message: "Enter valid product id" })
 
         //checking if product is present in product model and its is deleted is false
@@ -35,7 +35,13 @@ const addToCart = async function (req, res) {
 
             let cartArray = cartData.items
             console.log(cartArray)
-            let productPresent = { productId: productId, quantity: 1 }
+            var productPresent = { productId: productId, quantity: 1 }
+            //let items = []
+            // productId= req.body.productId
+         //items.push(productPresent)
+            
+           //  console.log(items)
+           
 
             let compareId = cartArray.findIndex((obj) => obj.productId == productId)
 
@@ -55,20 +61,25 @@ const addToCart = async function (req, res) {
             return res.status(200).send({ status: true, message: "product added to cart successfully", data: cartData })
         } else {
             let items = []
+           // productId= req.body.productId
+        items.push(productPresent)
+           
+            //console.log(items)
 
             let product = await productModel.findOne({ _id: productId })
-            console.log(product)
+           // console.log(product)
             if (!product) return res.status(404).send({ status: false, message: "No product found" })
-            let newitem = items.push({ productId: productId, quantity: 1 })
+           // let quantity = 1
+           // let newitem = items.push(data.productId)
             let cartBody = {
                 userId: userId,
-                items: newitem,
-                // items : items,
+              // items: newitem,
+                 items : items,
                 totalPrice: product.price,
                 totalItems: 1
             }
             let createdCart = await cartModel.create(cartBody)
-            console.log(createdCart)
+            //console.log(createdCart)
             return res.status(201).send({ status: false, message: "Cart created successfully", data: createdCart })
         }
     } catch (error) {
@@ -162,7 +173,7 @@ const getCartDetails = async function (req, res) {
         //     return res.status(404).send({status:false, message:" This User does not exist"})
         //   }
 
-        let checkCart = await cartModel.findOne({ userId: userId }).populate(items.productId)
+        let checkCart = await cartModel.findOne({ userId: userId }).populate("items".productId)
         if (!checkCart) {
             return res.status(400).send({ status: false, message: "The Cart does not exist with this user" })
         }
