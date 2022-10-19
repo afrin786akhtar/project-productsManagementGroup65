@@ -66,10 +66,11 @@ const updateOrder = async function (req, res){
     try{
     let data = req.body
 
-    if(!isValidate(data)) return res.status(400).send({status:false,message:"Input not found"})
+    let {orderId} = data
+    // if(isValidate(data)) return res.status(400).send({status:false,message:"Input not found"})
    
-    if(!data.orderId) return res.status(400).send({status:false,message:"OrderId is required"})
-    if(!isValidObjectId(data,orderId)) return res.status(400).send({status:false,message:"OrderId is not valid"})
+    if(!orderId) return res.status(400).send({status:false,message:"OrderId is required"})
+    if(!isValidObjectId(orderId)) return res.status(400).send({status:false,message:"OrderId is not valid"})
 
     let findOrder=await orderModel.findOne({_id:data.orderId,isDeleted:false})
     if (!findOrder) return res.status(400).send({status:false,message:`Order not found by this'${data.orderId}'`})
@@ -87,7 +88,7 @@ const updateOrder = async function (req, res){
       conditions.status = data.status;
     }
 
-    let resData = await Order.findByIdAndUpdate(
+    let resData = await orderModel.findByIdAndUpdate(
         {_id: findOrder._id},
         conditions,
         {new: true}
