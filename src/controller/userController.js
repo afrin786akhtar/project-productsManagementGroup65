@@ -54,9 +54,8 @@ const postUser = async (req, res) => {
     if (!phone) return res.status(400).send({ status: false, message: "phone number is required" });
     if (!isValidPhone(phone))
      return res.status(400).send({ status: false, message: "phone is not valid" });
-    let UniquePhone = await userModel.find({ phone: phone });
-    if (!UniquePhone)
-      return res.status(400).send({ status: false, message: "Phone already Exists" });
+    let UniquePhone = await userModel.findOne({ phone: phone });
+    if (UniquePhone)  return res.status(400).send({ status: false, message: "Phone already Exists" });
 
 
     if (address) {
