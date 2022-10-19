@@ -9,36 +9,46 @@ const placeOrder = async function (req, res){
 
     let {cartId} = data  //destructing
 
-
     if (!isValidObjectId(userId)) return res.status(400).send({ status: false, message: "please enter a valid  user Id" })
-
-    let checkUser = await cartModel.findOne({userId:userId})
-    if(!checkUser){
-        return res.status(400).send({status: false, message:" User Does not exist with given ID" })
-    }
 
     let productInCart = await cartModel.findOne({_id:cartId})
     if(!productInCart){
         return res.status(400).send({status:true,message:"user has not added items in cart"})
     }
 
-    if(productInCart.items.length==0){
-        return res.status(400).send({status:false, message:"No product added in cart"})
+    let checkUser = await cartModel.findOne({userId:userId})
+    if(!checkUser){
+        return res.status(400).send({status: false, message:" User Does not exist with given ID" })
+    }   
 
+    if(productInCart.items.length==0){
+        return res.status(400).send({status:false, message:"No product present in cart"})
     }
     
-
     let items = productInCart.items
     let totalPrice = productInCart.totalPrice
     let totalItems = productInCart.totalItems
-
+    // check for quantity
+    let totalQuantity = 0
+    for(let i=0 ; i<items.length ; i++){
+        totalQuantity += items[i].quantity
+    }
+    //checking the status
+    if(data.status){
+        if(data.status != "pending" && data.status != "completed" && data.status != "cancelled")
+        return res.status(400).send({ status : false , message : " status should be :- [cancelled , completed , pending]"})
+    }
+    if(data.cancellable == false){
+        cartPresent.cancellable = data.cancellable
+    }
 
     let orders= {
         userId: userId,
         items:items,
         totalPrice: totalPrice,
         totalItems: totalItems,
-        totalQuantity:  totalQuantity
+        totalQuantity:  totalQuantity,
+        status : data.status
 
     }
 

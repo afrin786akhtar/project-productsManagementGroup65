@@ -83,8 +83,8 @@ const removeProduct = async function (req, res) {
     try {
         userId = req.params.userId
 
-        let findCart = await cartModel.findOne({ userId: userId, isDeleted: false })
-        if (!findCart) return res.status(400).send({ status: false, message: "no Cart found by this userId" })
+        let findCart = await cartModel.findOne({ _id: userId, isDeleted: false })
+        if (findCart) return res.status(400).send({ status: false, message: "no Cart found by this userId" })
 
         // if (findCart.length == 0) return res.status(400).send({ status: false, message: "Cart is Empty" })
 
@@ -95,7 +95,6 @@ const removeProduct = async function (req, res) {
         if (data.totalPrice || data.totalItems || typeof data.totalPrice == 'string' || typeof data.totalItems == 'string') return res.status(400).send({ status: false, message: "Cannot change or update total price or total items value" });
 
         if (!isValidObjectId(data.productId)) return res.status(400).send({ status: false, message: "productId is not Valid" })
-        
         let checkProduct = await productModel.findById( data.productId )
         if (!checkProduct) return res.status(400).send({ status: false, message: `No product found with this '${data.productId}'productID` })
 
@@ -104,10 +103,9 @@ const removeProduct = async function (req, res) {
         // let items = [{ productId: data.productId, quantity: 1 }]
 
         // let newItem = await cartModel.findOne({items : items})
-        // let  newItems =
 
-        // let checkProductId = await cartModel.findOne( data.findCart , {items: {$in: [data.productId] } })
-        // if (!checkProductId) return res.status(400).send({ status: false, message: `No product found in Cart with this '${data.productId}'productID` })
+        let checkProductId = await cartModel.findOne( data.findCart ) //, {'items.productId'}: { $in: [data.productId] } })
+        if (!checkProductId) return res.status(400).send({ status: false, message: `No product found in Cart with this '${data.productId}'productID` })
 
         // let newProducts = checkProductId.items
 
@@ -116,8 +114,6 @@ const removeProduct = async function (req, res) {
         if (data.removeProduct == undefined) return res.status(400).send({ status: false, message: "removeProduct is Required" })
         if (!(/0|1/.test(data.removeProduct))) return res.status(400).send({ status: false, message: "removeProduct should be 0 or 1 in numbers" });
 
-        let cartChange = false
-
         let Cart = findCart
         Cart.items.map(x => {
             let getIndex = Cart.items.indexOf(x)
@@ -125,18 +121,16 @@ const removeProduct = async function (req, res) {
                 if (data.removeProduct == 0) {
                     Cart.items.splice(getIndex, 1)
                     Cart.totalPrice -= x.quantity * checkProduct.price
-cartChange = true
+
                 } else if (data.removeProduct == 1) {
                     Cart.totalPrice -= checkProduct.price
-                    cartChange = true
                 }
             }
             if (x.quantity == 0) {
                 Cart.items.splice(getIndex, 1)
             }
-           
+
         })
-        if(!cartChange) return res.status(400).send({message : "no product with this product id is present in cart"})
 
         //updating totalPrice and totalItems
         if (Cart.items.length == 0) {
@@ -148,13 +142,13 @@ cartChange = true
             Cart.totalItems = Cart.items.length;
         }
 
-        let getUpdatedCart = await cartModel.findByIdAndUpdate(
+        let getUpdatedCart = await Cart.findByIdAndUpdate(
             { _id: findCart._id },
             Cart,
             { new: true }
         ).populate('items'.productId)
 
-        return res.status(200).send({ status: true, message: "Success", data: getUpdatedCart });
+        return res.status(200).send({ status: true, message: "Success", data: findProduct });
 
     } catch (error) {
 
