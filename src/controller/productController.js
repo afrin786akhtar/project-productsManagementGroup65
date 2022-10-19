@@ -1,6 +1,6 @@
 const productModel = require("../model/productModel")
 //const aws = require('aws-sdk')
-const userModel = require("../model/userModel")
+// const userModel = require("../model/userModel")
 const { isValidate, isValidObjectId, isValidSize, isValidPrice } = require("../Validator/userValidator");
 const { validate } = require("../model/userModel");
 const { uploadFile } = require('../utils/awsUpload');
@@ -191,7 +191,7 @@ let updateProductsById = async (req, res) => {
   try {
     let productsId = req.params.productId
 
-    if (!isValidObjectId(productsId)) return res.status(400).send({ status: false, message: "please enter a product Id" })
+    if (!isValidObjectId(productsId)) return res.status(400).send({ status: false, message: "please enter a valid  product Id" })
 
     const products = await productModel.findOne({ _id: productsId, isDeleted: false })
     if (!products) return res.status(400).send({ status: false, message: "No products Found" })

@@ -21,7 +21,7 @@ const addToCart = async function (req, res) {
         //destructuring
         const { productId, cartId } = data
         if (!isValidObjectId(productId)) return res.status(400).send({ status: false, message: "Please Enter the valid product id" })
-        if (!isValidObjectId(cartId)) return res.status(400).send({ status: false, message: "enter valid cartId" })
+        
 
         //checking if product is present in product model and its is deleted is false
         const productData = await productModel.findOne({ _id: productId, isDeleted: false })
@@ -32,7 +32,7 @@ const addToCart = async function (req, res) {
         if (cartDataExist) {
 
             if (!cartId) return res.status(400).send('cart is already been created using this userID')
-
+            if (!isValidObjectId(cartId)) return res.status(400).send({ status: false, message: "enter valid cartId" })
             const cartData = await cartModel.findOne({ _id: cartId, userId: userId })//.populate('items.productId')
             if (!cartData) return res.status(400).send({ status: false, message: "Cart does not exist with this id please enter valid cartId" })
 
@@ -68,6 +68,7 @@ const addToCart = async function (req, res) {
             }
             let createdCart = await cartModel.create(cartBody)
             // console.log(createdCart)
+            
             return res.status(201).send({ status: false, message: "Cart created successfully", data: createdCart })
 
         }
