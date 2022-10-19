@@ -1,6 +1,7 @@
 const cartModel = require("../model/cartModel")
 const productModel = require("../model/productModel")
 const{isValidate,isValidObjectId}=require("../Validator/userValidator")
+const userModel = require("../model/userModel")
 
 //*******************Adding products to cart*************/
 
