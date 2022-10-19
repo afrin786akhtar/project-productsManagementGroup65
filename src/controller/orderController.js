@@ -56,6 +56,33 @@ const updateOrder = async function (req, res){
     try{
     let data = req.body
 
+    if(!isValidate(data)) return res.status(400).send({status:false,message:"Input not found"})
+   
+    if(!data.orderId) return res.status(400).send({status:false,message:"OrderId is required"})
+    if(!isValidObjectId(data,orderId)) return res.status(400).send({status:false,message:"OrderId is not valid"})
+
+    let findOrder=await orderModel.findOne({_id:data.orderId,isDeleted:false})
+    if (!findOrder) return res.status(400).send({status:false,message:`Order not found by this'${data.orderId}'`})
+
+    if(!isValidate(data.status)) return res.status(400).send({status:false,message:"status is required"})
+    if(!(['Pending','Completed','Cancelled'].includes(data.status))) return res.status(400).send({ status: false, message: "Order status should be one of this 'Pending','Completed' and 'Cancelled'" });
+
+    let conditions = {};
+
+    if(data.status == "Cancelled") {
+      //checking if the order is cancellable or not
+      if(!findOrder.cancellable) return res.status(400).send({ status: false, message: "You cannot cancel this order" });
+      conditions.status = data.status;
+    }else{
+      conditions.status = data.status;
+    }
+
+    let resData = await Order.findByIdAndUpdate(
+        {_id: findOrder._id},
+        conditions,
+        {new: true}
+      )
+      res.status(200).send({ status: true, message: "Success", data: resData });
     }
     catch(err){
         return res.status(500).send({status: false, message: err.message})
