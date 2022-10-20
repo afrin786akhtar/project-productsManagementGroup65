@@ -143,7 +143,7 @@ const removeProduct = async function (req, res) {
             Cart.totalItems = Cart.items.length;
         }
 
-        let getUpdatedCart = await cartModel.findByIdAndUpdate({ _id: findCart._id },Cart,{ new: true }).populate('items'.productId)
+        let getUpdatedCart = await cartModel.findByIdAndUpdate({ _id: findCart._id },Cart,{ new: true }).populate({ path: 'items.productId', select: { '_id': 1, 'title': 1, 'price': 1, 'productImage': 1} })
 
         return res.status(200).send({ status: true, message: "Success", data: getUpdatedCart });
 
