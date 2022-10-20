@@ -30,8 +30,11 @@ const isValidPhone = (Mobile) => {
 const isValidObjectId = (objectId) => {
   return mongoose.Types.ObjectId.isValid(objectId);
 }
-const isValidSize = (sizes) => {
-  return ["S", "XS", "M", "X", "L", "XXL", "XL"].includes(sizes);
+const isValidSize = (availableSizes) => {
+  for( i=0 ;i<availableSizes.length; i++){
+    if(!["S", "XS","M","X", "L","XXL", "XL"].includes(availableSizes[i])) return false
+  }
+  return true
 }
 
 const isValidPrice = (price) => {

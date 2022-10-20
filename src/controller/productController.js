@@ -52,21 +52,17 @@ const product = async function (req, res) {
     }
 
     //checking for available Sizes of the products
-    // if(isValidate(data.availableSizes))  return res.status(400).send({ status: false, message: "Enter at least one available size" });
+    // if(!(data.availableSizes))  return res.status(400).send({ status: false, message: "Enter at least one available size" });
 
-    if (availableSizes) {
-      var availableSize = data.availableSizes.toUpperCase().split(",") // Creating an array
-      if (availableSize.length === 0) {
-        return res.status(400).send({ status: false, message: "please provide the product sizes" })
+    if (availableSizes || availableSizes == "") {
+      availableSizes = availableSizes.toUpperCase().split(",").map((x)=> x.trim()) // Creating an array
+      data.availableSizes = availableSizes;
+      if (!isValidSize(availableSizes)) {
+        return res.status(400).send({ status: false, message: "please provide the product sizes among : [S , XS , M , X , L , XXL , XL ]" })
       }
-      data.availableSizes = availableSize;
+      
     }
 
-    // for (let i = 0; i < data.availableSizes.length; i++) {
-    //   // if (!isValidSize(data.availableSizes[i])) {
-    //   //   return res.status(400).send({ status: false, message: "Sizes should one of these - 'S', 'XS', 'M', 'X', 'L', 'XXL' and 'XL'" })
-    //   // }
-    // }
     let product = {
       title: title,
       description: description,

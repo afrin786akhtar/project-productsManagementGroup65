@@ -79,7 +79,7 @@ const postUser = async (req, res) => {
       // res.send the link back to frontend/postman
       var uploadedFileURL = await uploadFile(files[0]);
     } else {
-      return res.status(404).send({ status: false , message: "No file found" });
+      return res.status(404).send({ status: false , message: "Please provide the profile photo.." });
     }
     let user = {
       fname: fname,
@@ -153,7 +153,7 @@ const getUserProfile = async function (req, res) {
       return res.status(404).send({ send: false, message: "No profile available with this userId" });
     }
     return res.status(200).send({ status: true, message: "User profile details", data: user });
-    
+
   } catch (error) {
     return res.status(500).send({ status: false, message: error.message });
   }
@@ -166,7 +166,7 @@ const updateUser = async (req, res) => {
   let files = req.files;
   let userId = req.params.userId;
   let { fname, lname, email, phone, password, address } = data;
-  console.log(address)
+  // console.log(address)
 
   if (Object.keys(data).length == 0)
     return res.status(400).send({ status: false, message: "input should not be empty" });
