@@ -1,47 +1,42 @@
-const mongoose=require('mongoose')
+const mongoose = require('mongoose')
 
 
 function isEmail(emailAdress) {
-    let regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    // w use for char * use for breakpoint $ for end
-    return regex.test(emailAdress)       
+  let regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  // w use for char * use for breakpoint $ for end
+  return regex.test(emailAdress)
 }
 
-const isValidate= function (value) {
-    if (typeof value === "undefined" || value === null) return false;
-    if (typeof value === "string" && value.trim().length > 0) return true;
-    return false;
-  };
+const isValidate = function (value) {
+  if (typeof value === "undefined" || value === null) return false;
+  if (typeof value === "string" && value.trim().length > 0) return true;
+  return false;
+};
 
-  const isValidPassword = (Password) => {
-    return /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/.test(Password)
-  };
-  
+const isValidPassword = (Password) => {
+  return /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/.test(Password)
+};
 
 const isValidPincode = (num) => {
-    return /^[0-9]{6}$/.test(num);//492001
-  }
-  
-  const isValidString = (String) => {
-    return /\d/.test(String)
-  }
-  const isValidPhone = (Mobile) => {
-    return /^[6-9]\d{9}$/.test(Mobile)
-  };
-  const isValidObjectId = (objectId) => {
-    return mongoose.Types.ObjectId.isValid(objectId);
-  }
-  const isValidSize = (sizes) => {
-    return ["S", "XS","M","X", "L","XXL", "XL"].includes(sizes);
-  }
-
-  const isValidPrice = (price) => {
-    return /^[1-9]\d{0,7}(?:\.\d{1,2})?$/.test(price)
-  }
-  
-const imageValidation = (files) => {
-  return /[^\\s]+(\\.(?i)(jpe?g|png|gif|bmp))$/.test(files)
-
+  return /^[0-9]{6}$/.test(num);//492001
 }
 
-module.exports = {isEmail,isValidPassword,isValidate,isValidString,isValidPincode,isValidPhone,isValidObjectId,isValidSize,isValidPrice , imageValidation}
+const isValidString = (String) => {
+  return /\d/.test(String)
+}
+const isValidPhone = (Mobile) => {
+  return /^[6-9]\d{9}$/.test(Mobile)
+};
+const isValidObjectId = (objectId) => {
+  return mongoose.Types.ObjectId.isValid(objectId);
+}
+const isValidSize = (sizes) => {
+  return ["S", "XS", "M", "X", "L", "XXL", "XL"].includes(sizes);
+}
+
+const isValidPrice = (price) => {
+  return /^[1-9]\d{0,7}(?:\.\d{1,2})?$/.test(price)
+}
+
+
+module.exports = { isEmail, isValidPassword, isValidate, isValidString, isValidPincode, isValidPhone, isValidObjectId, isValidSize, isValidPrice }

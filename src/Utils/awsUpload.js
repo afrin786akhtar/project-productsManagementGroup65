@@ -7,7 +7,7 @@ AWS.config.update({
 });
 
 const uploadFile = async (files) => {
-  return new Promise( function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     let s3 = new AWS.S3({ apiVersion: '2006-03-01' });
 
     let uploadParams = {
@@ -17,8 +17,8 @@ const uploadFile = async (files) => {
       Body: files.buffer  //buffer read
     };
 
-    s3.upload(uploadParams, function(err,data) {
-      if(err) {
+    s3.upload(uploadParams, function (err, data) {
+      if (err) {
         return reject({ 'error': err });
       }
       return resolve(data.Location);
