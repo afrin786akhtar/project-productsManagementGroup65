@@ -7,7 +7,7 @@ const orderController = require('../controller/orderController')
 const auth = require('../auth/auth')
 
 
-
+//**********************user*********************/
 router.post('/register', userController.postUser)
 router.post('/login', userController.loginUser)
 router.get('/user/:userId/profile', auth.Authentication, userController.getUserProfile)
@@ -22,13 +22,13 @@ router.delete('/products/:productId', productController.deleteProductById)
 
 //*********************cart******************/
 router.post('/users/:userId/cart', auth.Authentication, cartController.addToCart)
-router.put('/users/:userId/cart', auth.Authentication, auth.Authorization , cartController.removeProduct)
+router.put('/users/:userId/cart', auth.Authentication, auth.Authorization, cartController.removeProduct)
 router.get('/users/:userId/cart', auth.Authentication, cartController.getCartDetails)
-router.delete('/users/:userId/cart', auth.Authentication,auth.Authorization , cartController.deleteCart)
+router.delete('/users/:userId/cart', auth.Authentication, auth.Authorization, cartController.deleteCart)
 
 //*********************Order*****************/
 router.post('/users/:userId/orders', auth.Authentication, orderController.placeOrder)
-router.put('/users/:userId/orders', auth.Authentication, auth.Authorization,orderController.updateOrder)
+router.put('/users/:userId/orders', auth.Authentication, auth.Authorization, orderController.updateOrder)
 
 
 module.exports = router

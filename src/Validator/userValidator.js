@@ -1,11 +1,6 @@
 const mongoose=require('mongoose')
 
 
-function whitespace(str) {
-    return str.trim().indexOf(" ") >= 0
-}
-
-
 function isEmail(emailAdress) {
     let regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     // w use for char * use for breakpoint $ for end
@@ -44,5 +39,9 @@ const isValidPincode = (num) => {
     return /^[1-9]\d{0,7}(?:\.\d{1,2})?$/.test(price)
   }
   
+const imageValidation = (files) => {
+  return /[^\\s]+(\\.(?i)(jpe?g|png|gif|bmp))$/.test(files)
 
-module.exports = {isEmail,isValidPassword,isValidate,isValidString,isValidPincode,isValidPhone,isValidObjectId,isValidSize,isValidPrice}
+}
+
+module.exports = {isEmail,isValidPassword,isValidate,isValidString,isValidPincode,isValidPhone,isValidObjectId,isValidSize,isValidPrice , imageValidation}

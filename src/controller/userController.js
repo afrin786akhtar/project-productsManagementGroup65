@@ -1,19 +1,9 @@
 const userModel = require("../model/userModel");
 const bcrypt = require('bcryptjs')
-
-//const aws = require("aws-sdk");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
-const {
-  isValidString,
-  isValidate,
-  isEmail,
-  isValidPassword,
-  isValidPhone,
-  isValidPincode,
-} = require("../Validator/userValidator");
 const { uploadFile } = require('../utils/awsUpload');
-
+const {isValidString,isValidate,isEmail,isValidPassword,isValidPhone,isValidPincode,} = require("../Validator/userValidator");
 
 //**************************Create User*******************************/
 
@@ -22,7 +12,6 @@ const postUser = async (req, res) => {
     let data = req.body;
     let files = req.files;
     
-
     //.......destructuring......
 
     if (Object.keys(data).length == 0)
@@ -170,9 +159,8 @@ const updateUser = async (req, res) => {
   let data = req.body;
   let files = req.files;
   let userId = req.params.userId;
-  let { fname, lname, email, phone, password, address } = data;
-  
-   
+  let { fname, lname, email, phone, password, address } = data;  
+  console.log(address) 
   
   if (Object.keys(data).length == 0)
     return res.status(400).send({ status: false, message: "input should not be empty" });
@@ -204,13 +192,12 @@ const updateUser = async (req, res) => {
     return res.status(400).send({status: false, message: "Phone already Exists" });
 
   if (address) {
-    // address = JSON.stringify(address)
+    address = JSON.parse(address)
 
     let { shipping, billing } = address;
 
     if (address.shipping) {
-      let { street, city, pincode } = shipping
-     
+      let { street, city, pincode } = shipping    
 
       if (street) {
         if (!isValidate(address.shipping.street))
@@ -225,8 +212,6 @@ const updateUser = async (req, res) => {
           return res.status(400).send({status: false, message: "Shipping pincode is Invalid" });
       }
     }
-
-
     if (billing) {
       let { street, city, pincode } = billing
       if (street) {
@@ -250,9 +235,7 @@ const updateUser = async (req, res) => {
         // res.send the link back to frontend/postman
       var uploadedFileURL = await uploadFile(files[0]);
     } 
-    // else {
-    //   return res.status(400).send({status: false, message: "No file found" });
-    // }
+    
   }
 
   // let user = {
