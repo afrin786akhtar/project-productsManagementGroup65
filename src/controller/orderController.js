@@ -1,6 +1,6 @@
 const cartModel = require("../model/cartModel")
 const orderModel = require("../model/orderModel")
-const { isValidate, isValidObjectId, isValidSize, isValidPrice } = require("../Validator/userValidator");
+const { isValidate, isValidObjectId} = require("../Validator/userValidator");
 
 const placeOrder = async function (req, res){
     try{
@@ -51,9 +51,11 @@ const placeOrder = async function (req, res){
         status : data.status
 
     }
-
+   
    let createOrder= await orderModel.create(orders)
-    return res.status(201).send({status:true,message:"Success", data :createOrder})
+   let productDataAll = await orderModel.findOne({ userId: userId }).populate({path : 'items.productId', select: { '_id': 1, 'title': 1, 'price': 1, 'productImage': 1} })
+
+    return res.status(201).send({status:true,message:"Success", data :productDataAll})
 
     }
     catch(err){

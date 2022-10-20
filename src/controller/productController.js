@@ -66,11 +66,11 @@ const product = async function (req, res) {
       data.availableSizes = availableSize;
     }
 
-    for (let i = 0; i < data.availableSizes.length; i++) {
-      if (!isValidSize(data.availableSizes[i])) {
-        return res.status(400).send({ status: false, message: "Sizes should one of these - 'S', 'XS', 'M', 'X', 'L', 'XXL' and 'XL'" })
-      }
-    }
+    // for (let i = 0; i < data.availableSizes.length; i++) {
+    //   // if (!isValidSize(data.availableSizes[i])) {
+    //   //   return res.status(400).send({ status: false, message: "Sizes should one of these - 'S', 'XS', 'M', 'X', 'L', 'XXL' and 'XL'" })
+    //   // }
+    // }
     let product = {
       title: title,
       description: description,

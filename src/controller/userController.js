@@ -1,5 +1,6 @@
 const userModel = require("../model/userModel");
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcryptjs')
+
 //const aws = require("aws-sdk");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
@@ -170,7 +171,9 @@ const updateUser = async (req, res) => {
   let files = req.files;
   let userId = req.params.userId;
   let { fname, lname, email, phone, password, address } = data;
-  // let securePass=await bcrypt.hash(password,10)
+  
+   
+  
   if (Object.keys(data).length == 0)
     return res.status(400).send({ status: false, message: "input should not be empty" });
 
@@ -188,10 +191,11 @@ const updateUser = async (req, res) => {
   if (UniqueEmail)
     return res.status(400).send({ status: false,message: "Email already Exists" });
   // //===========================  password ================================================================
-
+ 
   if (isValidPassword(password)) {
     return res.status(400).send({status: false, message: "The password must contain an uppercase, a lowercase, a numeric value, a special character and the limit is from 8 to 15 characters." });
   }
+  // data.password =await bcrypt.hash(password,10)
   // //===========================  Phone ================================================================
   if (isValidPhone(phone))
     res.status(400).send({status: false, message: "phone is not valid" });
@@ -200,7 +204,7 @@ const updateUser = async (req, res) => {
     return res.status(400).send({status: false, message: "Phone already Exists" });
 
   if (address) {
-    //address = JSON.stringify(address)
+    // address = JSON.stringify(address)
 
     let { shipping, billing } = address;
 
@@ -251,17 +255,17 @@ const updateUser = async (req, res) => {
     // }
   }
 
-  let user = {
-    fname: data.fname,
-    lname: data.lname,
-    email: data.email,
-    profileImage: uploadedFileURL,
-    phone: data.phone,
-    address: data.address,
-    password: data.password,
-  };
+  // let user = {
+  //   fname: data.fname,
+  //   lname: data.lname,
+  //   email: data.email,
+  //   profileImage: uploadedFileURL,
+  //   phone: data.phone,
+  //   address: data.address,
+  //   password: securePass,
+  // };
 
-  let update = await userModel.findByIdAndUpdate({ _id: userId }, user, { new: true });
+  let update = await userModel.findByIdAndUpdate({ _id: userId }, data, { new: true });
 
   res.status(200).send({ status: true, message: "Update user profile is successful", data: update });
 };

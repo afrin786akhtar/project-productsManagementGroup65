@@ -21,14 +21,14 @@ router.put('/products/:productId', productController.updateProductsById)
 router.delete('/products/:productId', productController.deleteProductById)
 
 //*********************cart******************/
-router.post('/users/:userId/cart', cartController.addToCart)
-router.put('/users/:userId/cart',cartController.removeProduct)
-router.get('/users/:userId/cart', cartController.getCartDetails)
-router.delete('/users/:userId/cart', auth.Authentication,cartController.deleteCart)
+router.post('/users/:userId/cart', auth.Authentication, cartController.addToCart)
+router.put('/users/:userId/cart', auth.Authentication, auth.Authorization , cartController.removeProduct)
+router.get('/users/:userId/cart', auth.Authentication, cartController.getCartDetails)
+router.delete('/users/:userId/cart', auth.Authentication,auth.Authorization , cartController.deleteCart)
 
 //*********************Order*****************/
-router.post('/users/:userId/orders', orderController.placeOrder)
-router.put('/users/:userId/orders',orderController.updateOrder)
+router.post('/users/:userId/orders', auth.Authentication, orderController.placeOrder)
+router.put('/users/:userId/orders', auth.Authentication, auth.Authorization,orderController.updateOrder)
 
 
 module.exports = router
