@@ -80,11 +80,11 @@ const updateOrder = async function (req, res){
     if (!findOrder) return res.status(400).send({status:false,message:`Order not found by this'${data.orderId}'`})
 
     if(!isValidate(data.status)) return res.status(400).send({status:false,message:"status is required"})
-    if(!(['Pending','Completed','Cancelled'].includes(data.status))) return res.status(400).send({ status: false, message: "Order status should be one of this 'Pending','Completed' and 'Cancelled'" });
+    if(!(["pending", "completed", "cancelled"].includes(data.status))) return res.status(400).send({ status: false, message: "Order status should be one of this 'pending','completed' and 'cancelled'" });
 
     let conditions = {};
-
-    if(data.status == "Cancelled") {
+  
+    if(data.status == "cancelled") {
       //checking if the order is cancellable or not
       if(!findOrder.cancellable) return res.status(400).send({ status: false, message: "You cannot cancel this order" });
       conditions.status = data.status;
