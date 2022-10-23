@@ -21,13 +21,13 @@ router.put('/products/:productId', productController.updateProductsById)
 router.delete('/products/:productId', productController.deleteProductById)
 
 //*********************cart******************/
-router.post('/users/:userId/cart', auth.Authentication, cartController.addToCart)
+router.post('/users/:userId/cart', auth.Authentication,auth.Authorization, cartController.addToCart)
 router.put('/users/:userId/cart', auth.Authentication, auth.Authorization, cartController.removeProduct)
-router.get('/users/:userId/cart', auth.Authentication, cartController.getCartDetails)
+router.get('/users/:userId/cart', auth.Authentication, auth.Authorization, cartController.getCartDetails)
 router.delete('/users/:userId/cart', auth.Authentication, auth.Authorization, cartController.deleteCart)
 
 //*********************Order*****************/
-router.post('/users/:userId/orders', auth.Authentication, orderController.placeOrder)
+router.post('/users/:userId/orders', auth.Authentication,auth.Authorization, orderController.placeOrder)
 router.put('/users/:userId/orders', auth.Authentication, auth.Authorization, orderController.updateOrder)
 
 

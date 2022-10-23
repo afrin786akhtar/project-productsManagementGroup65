@@ -13,28 +13,36 @@ const addToCart = async function (req, res) {
 
         // checking if data is provided
         if (Object.keys(data).length == 0) {
-            return res.status(400).send({ status: false, message: "Please provide data" })
+            return res.status(400).send({ status: false, message: "Please provide the product for creating cart!!" })
         }
         // checking the userId is valid or not
         if (!isValidObjectId(userId)) return res.status(400).send({ status: false, message: "userId is not valid Please provide valid userID!!!" })
-
+        let userPresent = await userModel.findOne({_id : userId})
+        if(!userPresent) return res.status(400).send({ status : false , message : "No user Present with this userId in the user collection"})
+       
         //destructuring
         const { productId, cartId } = data
+       
         if (!isValidObjectId(productId)) return res.status(400).send({ status: false, message: "Please Enter the valid product id" })
-
-
+           
         //checking if product is present in product model and its is deleted is false
         const productData = await productModel.findOne({ _id: productId, isDeleted: false })
         if (!productData) return res.status(400).send({ status: false, message: "Product doesn't exist" })
 
+        //check for the cart
+        // if(!cartId) {
+        //     let checkingCart = await cartModel.findOne({ userId: userId })
+        //     if(checkingCart) return res.status(400).send({status : false , message : "The cart has already been created with this user. Please provide the correct cartId!!"})
+        // }
+        
         //checking if cart is alreaady present or not 
         let cartDataExist = await cartModel.findOne({ userId: userId })
+       
         if (cartDataExist) {
-
-            if (!cartId) return res.status(400).send({status : false , message :'cart is already been created using this userID'})
-            if (!isValidObjectId(cartId)) return res.status(400).send({ status: false, message: "enter valid cartId" })
+            if (!isValidObjectId(cartId)) return res.status(400).send({ status: false, message: "Please Enter valid cartId" })
+         
             const cartData = await cartModel.findOne({ _id: cartId, userId: userId })
-            if (!cartData) return res.status(400).send({ status: false, message: "Cart does not exist with this id please enter valid cartId" })
+            if (!cartData) return res.status(400).send({ status: false, message: "Cart is already been created with this cart id. Please provide the valid cart ID!!" })
 
 
             let cartArray = cartData.items  // adding the items i.e. product

@@ -14,7 +14,7 @@ const postUser = async (req, res) => {
     //.......destructuring......
 
     if (Object.keys(data).length == 0)
-      return res.status(400).send({ status: false, message: "input should not be empty" });
+      return res.status(400).send({ status: false, message: "Please provide some data for registration!!" });
 
     let { fname, lname, email, phone, password, address } = data;
 
@@ -74,12 +74,13 @@ const postUser = async (req, res) => {
     if ((files && files.length) > 0) {
       let image = files[0]
       let imagename = image.originalname
-      if (!/^.*\.(jpg|JPG|gif|GIF|doc|DOC|pdf|PDF|PNG|png|jpeg|JPEG)$/.test(imagename)) return res.status(400).send({ status: false, message: "file only accept pdf,jpg ,png, doc" })
+      if (!/^.*\.(jpg|JPG|gif|GIF|doc|DOC|pdf|PDF|PNG|png|jpeg|JPEG)$/.test(imagename))
+        return res.status(400).send({ status: false, message: "file only accept pdf,jpg ,png, doc" })
       //upload to s3 and get the uploaded link
       // res.send the link back to frontend/postman
       var uploadedFileURL = await uploadFile(files[0]);
     } else {
-      return res.status(404).send({ status: false , message: "Please provide the profile photo.." });
+      return res.status(404).send({ status: false, message: "Please provide the profile photo.." });
     }
     let user = {
       fname: fname,
@@ -165,37 +166,52 @@ const updateUser = async (req, res) => {
   let data = req.body;
   let files = req.files;
   let userId = req.params.userId;
+
   let { fname, lname, email, phone, password, address } = data;
   // console.log(address)
 
   if (Object.keys(data).length == 0)
-    return res.status(400).send({ status: false, message: "input should not be empty" });
+    return res.status(400).send({ status: false, message: "Please provide some data for updating the profile!!" });
 
-  if (isValidString(fname)) {
-    return res.status(400).send({ status: false, message: "fname should be valid" });
+  if (fname) {
+    if (!isValidString(fname)) {
+      return res.status(400).send({ status: false, message: "fname should be valid" });
+    }
   }
 
-  if (isValidString(lname)) {
-    return res.status(400).send({ status: false, message: "lname is not valid" });
+  if (lname) {
+    if (!isValidString(lname)) {
+      return res.status(400).send({ status: false, message: "lname is not valid" });
+    }
   }
+
 
   // //===========================  Email ================================================================
-
+  if (email) {
+    if (!isEmail(email)) return res.status(400).send({ status: false, message: "Email is invalid!!" })
+  }
   let UniqueEmail = await userModel.findOne({ email: email });
   if (UniqueEmail)
     return res.status(400).send({ status: false, message: "Email already Exists" });
-  // //===========================  password ================================================================
 
-  if (isValidPassword(password)) {
-    return res.status(400).send({ status: false, message: "The password must contain an uppercase, a lowercase, a numeric value, a special character and the limit is from 8 to 15 characters." });
+  // //===========================  password ================================================================
+  if (password) {
+    data.password = await bcrypt.hash(password, 10);
+    if (!isValidPassword(password)) {
+      return res.status(400).send({ status: false, message: "The password must contain an uppercase, a lowercase, a numeric value, a special character and the limit is from 8 to 15 characters." });
+    }
   }
-  // data.password =await bcrypt.hash(password,10)
+
+  
   // //===========================  Phone ================================================================
-  if (isValidPhone(phone))
-    res.status(400).send({ status: false, message: "phone is not valid" });
+
+  if (phone) {
+    if (!isValidPhone(phone))
+      res.status(400).send({ status: false, message: "phone is not valid" });
+  }
+
   let UniquePhone = await userModel.findOne({ phone: phone });
-  if (UniquePhone)
-    return res.status(400).send({ status: false, message: "Phone already Exists" });
+  if (UniquePhone) return res.status(400).send({ status: false, message: "Phone already Exists" });
 
   if (address) {
     try {
@@ -204,41 +220,7 @@ const updateUser = async (req, res) => {
     } catch (e) {
       return res.status(400).send({ status: false, message: "please provided valid address" });
     }
-    // address = JSON.stringify(address)
-
-    let { shipping, billing } = address;
-
-    if (address.shipping) {
-      let { street, city, pincode } = shipping;
-
-      if (street) {
-        if (!isValidate(address.shipping.street))
-          return res.status(400).send({ status: false, message: "Shipping street is invalid" });
-      }
-      if (city) {
-        if (!isValidate(address.shipping.city))
-          return res.status(400).send({ status: false, message: "Shipping city is not valid" });
-      }
-      if (pincode) {
-        if (!isValidPincode(address.shipping.pincode))
-          return res.status(400).send({ status: false, message: "Shipping pincode is Invalid" });
-      }
-    }
-    if (billing) {
-      let { street, city, pincode } = billing;
-      if (street) {
-        if (!isValidate(address.billing.street))
-          return res.status(400).send({ status: false, message: "Billing street is invalid" });
-      }
-      if (city) {
-        if (!isValidate(address.billing.city))
-          return res.status(400).send({ status: false, message: "Billing city is not valid" });
-      }
-      if (pincode) {
-        if (!isValidPincode(address.billing.pincode))
-          return res.status(400).send({ status: false, message: "Billing pincode is not valid" });
-      }
-    }
+    
   }
 
   if (files) {

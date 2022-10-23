@@ -10,24 +10,28 @@ const product = async function (req, res) {
     let files = req.files
 
     if (Object.keys(data).length == 0)
-      return res.status(400).send({ status: false, message: "input should not be empty" });
+      return res.status(400).send({ status: false, message: "Please provide some details for the product!!" });
 
     let { title, description, price, currencyId, currencyFormat, isFreeShipping, style, installments, availableSizes } = data;
 
+    //---------title-------------
     if (!title) return res.status(400).send({ status: false, message: "Title is mandatory field" })
     let uniqueTitle = await productModel.findOne({ title: title })
     if (uniqueTitle) return res.status(400).send({ status: false, message: "Title should be unique" })
 
+    //----------description---------
     if (data.description || typeof data.description == 'string') {
       //checking for product description
       if (!isValidate(data.description)) return res.status(400).send({ status: false, message: "Description should not be an empty string or any numbers in it" });
     };
 
+    //-----------price---------------
     if (data.price || typeof data.price == 'string') {
       //checking for product price
       if (!isValidPrice(data.price)) return res.status(400).send({ status: false, message: "Price of product should be valid and in numbers" });
     }
 
+    //-----------currency----------------
     if (data.currencyId || typeof data.currencyId == 'string') {
       //checking for currencyId 
       if (!isValidate(data.currencyId)) return res.status(400).send({ status: false, message: "Currency Id of product should not be an empty spaces" });
@@ -35,6 +39,7 @@ const product = async function (req, res) {
       if (!(/INR/.test(data.currencyId))) return res.status(400).send({ status: false, message: "Currency Id of product should be in uppercase 'INR' format" });
     }
 
+    //---------currency formate-----------
     if (data.currencyFormat || typeof data.currencyFormat == 'string') {
       //checking for currency formate
       if (!isValidate(data.currencyFormat)) return res.status(400).send({ status: false, message: "Currency format of product should not be an empty spaces" });
@@ -42,25 +47,23 @@ const product = async function (req, res) {
       if (!(/₹/.test(data.currencyFormat))) return res.status(400).send({ status: false, message: "Currency format/symbol of product should be in '₹' " });
     }
 
-
+    //------------for product image--------
     if ((files && files.length) > 0) {
       //upload to s3 and get the uploaded link
       // res.send the link back to frontend/postman
       var productImage = await uploadFile(files[0]);
     } else {
-      return res.status(400).send({ status: false, message: "No file found" });
+      return res.status(400).send({ status: false, message: "please add product image!!" });
     }
 
     //checking for available Sizes of the products
-    // if(!(data.availableSizes))  return res.status(400).send({ status: false, message: "Enter at least one available size" });
-
+   
     if (availableSizes || availableSizes == "") {
       availableSizes = availableSizes.toUpperCase().split(",").map((x)=> x.trim()) // Creating an array
       data.availableSizes = availableSizes;
       if (!isValidSize(availableSizes)) {
         return res.status(400).send({ status: false, message: "please provide the product sizes among : [S , XS , M , X , L , XXL , XL ]" })
-      }
-      
+      } 
     }
 
     let product = {
@@ -77,7 +80,7 @@ const product = async function (req, res) {
     };
 
     let createProduct = await productModel.create(product);
-    //console.log(createProduct)
+    
     return res.status(201).send({ status: true, message: "Success", data: createProduct });
 
   } catch (err) {
