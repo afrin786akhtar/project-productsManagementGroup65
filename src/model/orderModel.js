@@ -10,8 +10,8 @@ const orderSchema = new mongoose.Schema(
         },
         items: [
             {
+                _id : false ,
                 productId: {
-                    _id : false , 
                     type: ObjectId,
                     ref: "Product",
                     required: true,
@@ -21,7 +21,7 @@ const orderSchema = new mongoose.Schema(
                     required: true,
                     min: 1,
                 },
-                _id : false                
+                              
             },
         ],
         totalPrice: {

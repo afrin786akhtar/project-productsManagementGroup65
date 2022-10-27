@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const { uploadFile } = require('../utils/awsUpload');
-const { isValidString, isValidate, isEmail, isValidPassword, isValidPhone, isValidPincode, } = require("../Validator/userValidator");
+const { isValidString, isEmail, isValidPassword, isValidPhone, isValidPincode, } = require("../Validator/userValidator");
 
 //**************************Create User*******************************/
 
